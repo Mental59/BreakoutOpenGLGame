@@ -1,6 +1,7 @@
 #include <iostream>
 #include <glad/glad.h>
 #include <glfw3.h>
+#include "Game.h"
 
 int WINDOW_WIDTH = 800;
 int WINDOW_HEIGHT = 600;
@@ -8,7 +9,7 @@ int WINDOW_HEIGHT = 600;
 static void framebufferSizeCallback(GLFWwindow* window, int width, int height);
 static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mode);
 
-bool KEYS[1024];
+Game GAME = Game(WINDOW_WIDTH, WINDOW_HEIGHT);
 
 int main()
 {
@@ -53,12 +54,15 @@ int main()
 		glfwPollEvents();
 
 		// Process input
+		GAME.ProcessInput(deltaTime);
 
 		// Update
+		GAME.Update(deltaTime);
 
 		// Render
 		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
+		GAME.Render();
 
 		glfwSwapBuffers(window);
 	}
@@ -80,15 +84,12 @@ static void keyCallback(GLFWwindow* window, int key, int scancode, int action, i
 		glfwSetWindowShouldClose(window, true);
 	}
 
-	if (key >= 0 && key < 1024)
+	if (action == GLFW_PRESS)
 	{
-		if (action == GLFW_PRESS)
-		{
-			KEYS[key] = true;
-		}
-		else if (action == GLFW_RELEASE)
-		{
-			KEYS[key] = false;
-		}
+		GAME.setKey(key, true);
+	}
+	else if (action == GLFW_RELEASE)
+	{
+		GAME.setKey(key, false);
 	}
 }

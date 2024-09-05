@@ -147,10 +147,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Shader\ShaderProgram.cpp" />
+    <ClCompile Include="src\Shader\Shader.cpp" />
+    <ClCompile Include="src\Game.cpp" />
     <ClCompile Include="src\External\glad.c" />
     <ClCompile Include="src\Main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Shader\ShaderProgram.h" />
+    <ClInclude Include="src\Shader\Shader.h" />
+    <ClInclude Include="src\Game.h" />
     <ClInclude Include="src\External\stb_image.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
