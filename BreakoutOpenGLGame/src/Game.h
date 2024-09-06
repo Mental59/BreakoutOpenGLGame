@@ -2,7 +2,7 @@
 
 static int constexpr NUM_KEYS = 1024;
 
-enum GameState
+enum GameState : unsigned char
 {
 	GAME_ACTIVE = 0,
 	GAME_MENU,

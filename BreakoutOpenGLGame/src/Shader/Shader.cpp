@@ -1,28 +1,10 @@
+#include <iostream>
+#include <glad/glad.h>
 #include "Shader.h"
 
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <string>
-#include <glad/glad.h>
-
-Shader::Shader(const char* sourcePath, ShaderType type)
+Shader::Shader(unsigned int type) : mID(0), mType(type)
 {
-	switch (type)
-	{
-	case Shader::Vertex:
-		mType = GL_VERTEX_SHADER;
-		break;
-	case Shader::Fragment:
-		mType = GL_FRAGMENT_SHADER;
-		break;
-	case Shader::Geometry:
-		mType = GL_GEOMETRY_SHADER;
-		break;
-	}
 
-	mSource = ReadSource(sourcePath);
-	Compile();
 }
 
 Shader::~Shader()
@@ -30,45 +12,35 @@ Shader::~Shader()
 	glDeleteShader(mID);
 }
 
-void Shader::Compile()
+void Shader::Compile(const char* source)
 {
-	mID = Compile(mSource.c_str(), mType);
-}
+	if (mID != 0 || !source)
+	{
+		return;
+	}
 
-std::string Shader::ReadSource(const char* sourcePath)
-{
-	std::ifstream stream(sourcePath);
-	std::stringstream sourceStream;
-	sourceStream << stream.rdbuf();
-	return sourceStream.str();
-}
+	mID = glCreateShader(mType);
 
-GLuint Shader::Compile(const char* source, unsigned int type)
-{
-	GLuint id = glCreateShader(type);
-
-	glShaderSource(id, 1, &source, nullptr);
-	glCompileShader(id);
+	glShaderSource(mID, 1, &source, nullptr);
+	glCompileShader(mID);
 
 	GLint compileStatus;
-	glGetShaderiv(id, GL_COMPILE_STATUS, &compileStatus);
+	glGetShaderiv(mID, GL_COMPILE_STATUS, &compileStatus);
 
 	if (compileStatus == GL_FALSE)
 	{
 		GLint infoLength;
-		glGetShaderiv(id, GL_INFO_LOG_LENGTH, &infoLength);
+		glGetShaderiv(mID, GL_INFO_LOG_LENGTH, &infoLength);
 
 		if (infoLength > 0)
 		{
 			char message[1024];
-			glGetShaderInfoLog(id, 1024, nullptr, message);
+			glGetShaderInfoLog(mID, 1024, nullptr, message);
 			std::cout << "SHADER::ERROR Failed to compile shader" << std::endl;
 			std::cout << message << std::endl;
 		}
 
-		glDeleteShader(id);
-		return 0;
+		glDeleteShader(mID);
+		return;
 	}
-
-	return id;
 }
