@@ -10,28 +10,25 @@ ShaderProgram::ShaderProgram() : mID(0)
 
 ShaderProgram::~ShaderProgram()
 {
+#ifdef _DEBUG
+	std::cout << "Shader program with id " << mID << " destroyed" << std::endl;
+#endif // _DEBUG
+
 	glDeleteProgram(mID);
 }
 
-void ShaderProgram::Init(const Shader* const vertexShader, const Shader* const fragmentShader, const Shader* const geometryShader)
+void ShaderProgram::Init(const Shader& vertexShader, const Shader& fragmentShader, const Shader& geometryShader)
 {
 	unsigned int shaderProgram;
 	shaderProgram = glCreateProgram();
 
-	if (vertexShader)
-	{
-		glAttachShader(shaderProgram, vertexShader->GetID());
-	}
+	unsigned int vertexShaderId = vertexShader.GetID();
+	unsigned int fragmentShaderId = fragmentShader.GetID();
+	unsigned int geometryShaderId = geometryShader.GetID();
 
-	if (fragmentShader)
-	{
-		glAttachShader(shaderProgram, fragmentShader->GetID());
-	}
-
-	if (geometryShader)
-	{
-		glAttachShader(shaderProgram, geometryShader->GetID());
-	}
+	if (vertexShaderId) glAttachShader(shaderProgram, vertexShaderId);
+	if (fragmentShaderId) glAttachShader(shaderProgram, fragmentShaderId);
+	if (geometryShaderId) glAttachShader(shaderProgram, geometryShaderId);
 
 	glLinkProgram(shaderProgram);
 

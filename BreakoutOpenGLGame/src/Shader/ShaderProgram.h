@@ -11,7 +11,7 @@ public:
 	ShaderProgram();
 	virtual ~ShaderProgram();
 
-	void Init(const Shader* const vertexShader, const Shader* const fragmentShader, const Shader* const geometryShader);
+	void Init(const Shader& vertexShader, const Shader& fragmentShader, const Shader& geometryShader);
 	void Bind();
 	void Unbind();
 

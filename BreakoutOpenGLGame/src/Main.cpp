@@ -2,6 +2,7 @@
 #include <glad/glad.h>
 #include <glfw3.h>
 #include "Game.h"
+#include "Manager/ResourceManager.h"
 
 int WINDOW_WIDTH = 800;
 int WINDOW_HEIGHT = 600;
@@ -10,6 +11,7 @@ static void framebufferSizeCallback(GLFWwindow* window, int width, int height);
 static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mode);
 
 Game GAME = Game(WINDOW_WIDTH, WINDOW_HEIGHT);
+ResourceManager RESOURCE_MANAGER = ResourceManager();
 
 int main()
 {
@@ -44,6 +46,26 @@ int main()
 
 	double deltaTime = 0.0f;
 	double lastFrameTime = 0.0f;
+
+	ResourceManager::LoadShaderOptions loadShaderOptions;
+	loadShaderOptions.shaderName = "shader1";
+	loadShaderOptions.vertexShaderPath = "resources/shaders/shader.vert";
+	loadShaderOptions.fragmentShaderPath = "resources/shaders/shader.frag";
+	loadShaderOptions.geometryShaderPath = nullptr;
+	RESOURCE_MANAGER.LoadShader(loadShaderOptions);
+
+	ResourceManager::LoadTextureOptions loadTextureOptions;
+	loadTextureOptions.path = "resources/textures/awesomeface.png";
+	loadTextureOptions.textureName = "awesomeface";
+	RESOURCE_MANAGER.LoadTexture2D(loadTextureOptions);
+	loadTextureOptions.path = "resources/textures/container2.png";
+	loadTextureOptions.textureName = "container2";
+	RESOURCE_MANAGER.LoadTexture2D(loadTextureOptions);
+
+	{
+		auto shader = RESOURCE_MANAGER.GetShader("shader1");
+		auto texture = RESOURCE_MANAGER.GetTexture2D("awesomeface");
+	}
 
 	while (!glfwWindowShouldClose(window))
 	{

@@ -28,5 +28,7 @@ void Game::Render()
 
 Game::~Game()
 {
+#ifdef _DEBUG
 	std::cout << "Game is destroyed" << std::endl;
+#endif // _DEBUG
 }
