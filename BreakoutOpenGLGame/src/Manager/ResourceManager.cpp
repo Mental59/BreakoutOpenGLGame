@@ -23,7 +23,7 @@ std::weak_ptr<Texture2D> ResourceManager::GetTexture2D(unsigned int index)
 	return std::weak_ptr<Texture2D>(mTextures[index]);
 }
 
-void ResourceManager::LoadShader(LoadShaderOptions& options)
+unsigned int ResourceManager::LoadShader(LoadShaderOptions& options)
 {
 	std::shared_ptr<ShaderProgram> shaderPtr = std::make_shared<ShaderProgram>();
 	InitShaderProgram(shaderPtr.get(), options);
@@ -31,9 +31,11 @@ void ResourceManager::LoadShader(LoadShaderOptions& options)
 
 	unsigned int index = mShaders.size() - 1;
 	options.index = index;
+
+	return index;
 }
 
-void ResourceManager::LoadTexture2D(LoadTextureOptions& options)
+unsigned int ResourceManager::LoadTexture2D(LoadTextureOptions& options)
 {
 	std::shared_ptr<Texture2D> texturePtr = std::make_shared<Texture2D>();
 	InitTexture2D(texturePtr.get(), options);
@@ -41,6 +43,8 @@ void ResourceManager::LoadTexture2D(LoadTextureOptions& options)
 
 	unsigned int index = mTextures.size() - 1;
 	options.index = index;
+
+	return index;
 }
 
 void ResourceManager::InitShaderProgram(ShaderProgram* shaderProgram, const LoadShaderOptions& options)

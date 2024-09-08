@@ -29,9 +29,9 @@ public:
 	std::weak_ptr<ShaderProgram> GetShader(unsigned int index);
 	std::weak_ptr<Texture2D> GetTexture2D(unsigned int index);
 
-	void LoadShader(LoadShaderOptions& options);
+	unsigned int LoadShader(LoadShaderOptions& options);
 
-	void LoadTexture2D(LoadTextureOptions& options);
+	unsigned int LoadTexture2D(LoadTextureOptions& options);
 private:
 	void InitShaderProgram(ShaderProgram* shaderProgram, const LoadShaderOptions& options);
 	void CompileShaderFromFile(Shader& shader, const char* filePath);
