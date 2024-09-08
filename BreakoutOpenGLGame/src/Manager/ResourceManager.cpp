@@ -13,40 +13,38 @@ ResourceManager::ResourceManager() : mShaders(), mTextures()
 
 }
 
-std::weak_ptr<ShaderProgram> ResourceManager::GetShader(const std::string& name)
+std::weak_ptr<ShaderProgram> ResourceManager::GetShader(unsigned int index)
 {
-	return std::weak_ptr<ShaderProgram>(mShaders[name]);
+	return std::weak_ptr<ShaderProgram>(mShaders[index]);
 }
 
-std::weak_ptr<Texture2D> ResourceManager::GetTexture2D(const std::string& name)
+std::weak_ptr<Texture2D> ResourceManager::GetTexture2D(unsigned int index)
 {
-	return std::weak_ptr<Texture2D>(mTextures[name]);
+	return std::weak_ptr<Texture2D>(mTextures[index]);
 }
 
-std::weak_ptr<ShaderProgram> ResourceManager::LoadShader(const LoadShaderOptions& options)
+void ResourceManager::LoadShader(LoadShaderOptions& options)
 {
-	ShaderProgram* shader = LoadShaderFromFile(options);
+	std::shared_ptr<ShaderProgram> shaderPtr = std::make_shared<ShaderProgram>();
+	InitShaderProgram(shaderPtr.get(), options);
+	mShaders.push_back(std::move(shaderPtr));
 
-	std::shared_ptr<ShaderProgram> shaderPtr(shader);
-	mShaders[options.shaderName] = std::move(shaderPtr);
-
-	return std::weak_ptr<ShaderProgram>(mShaders[options.shaderName]);
+	unsigned int index = mShaders.size() - 1;
+	options.index = index;
 }
 
-std::weak_ptr<Texture2D> ResourceManager::LoadTexture2D(const LoadTextureOptions& options)
+void ResourceManager::LoadTexture2D(LoadTextureOptions& options)
 {
-	Texture2D* texture = LoadTexture2DFromFile(options);
+	std::shared_ptr<Texture2D> texturePtr = std::make_shared<Texture2D>();
+	InitTexture2D(texturePtr.get(), options);
+	mTextures.push_back(std::move(texturePtr));
 
-	std::shared_ptr<Texture2D> texturePtr(texture);
-	mTextures[options.textureName] = std::move(texturePtr);
-
-	return std::weak_ptr<Texture2D>(mTextures[options.textureName]);
+	unsigned int index = mTextures.size() - 1;
+	options.index = index;
 }
 
-ShaderProgram* ResourceManager::LoadShaderFromFile(const LoadShaderOptions& options)
+void ResourceManager::InitShaderProgram(ShaderProgram* shaderProgram, const LoadShaderOptions& options)
 {
-	ShaderProgram* shaderProgram = new ShaderProgram();
-
 	Shader vertexShader(GL_VERTEX_SHADER);
 	Shader fragmentShader(GL_FRAGMENT_SHADER);
 	Shader geometryShader(GL_GEOMETRY_SHADER);
@@ -56,8 +54,6 @@ ShaderProgram* ResourceManager::LoadShaderFromFile(const LoadShaderOptions& opti
 	CompileShaderFromFile(geometryShader, options.geometryShaderPath);
 
 	shaderProgram->Init(vertexShader, fragmentShader, geometryShader);
-
-	return shaderProgram;
 }
 
 void ResourceManager::CompileShaderFromFile(Shader& shader, const char* filePath)
@@ -73,10 +69,8 @@ void ResourceManager::CompileShaderFromFile(Shader& shader, const char* filePath
 	shader.Compile(sourceStream.str().c_str());
 }
 
-Texture2D* ResourceManager::LoadTexture2DFromFile(const LoadTextureOptions& options)
+void ResourceManager::InitTexture2D(Texture2D* texture, const LoadTextureOptions& options)
 {
-	Texture2D* texture = new Texture2D();
-
 	int width, height, numChannels;
 	unsigned char* data = stbi_load(options.path, &width, &height, &numChannels, 0);
 
@@ -94,6 +88,4 @@ Texture2D* ResourceManager::LoadTexture2DFromFile(const LoadTextureOptions& opti
 	texture->Init(width, height, numChannels, data);
 
 	stbi_image_free(data);
-
-	return texture;
 }

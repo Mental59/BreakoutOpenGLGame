@@ -1,7 +1,6 @@
 #pragma once
 
-#include <unordered_map>
-#include <string>
+#include <vector>
 #include <memory>
 
 class ShaderProgram;
@@ -16,28 +15,29 @@ public:
 		const char* vertexShaderPath;
 		const char* fragmentShaderPath;
 		const char* geometryShaderPath;
-		const char* shaderName;
+		unsigned int index;
 	};
 
 	struct LoadTextureOptions
 	{
 		const char* path;
-		const char* textureName;
+		unsigned int index;
 	};
 
 	ResourceManager();
 
-	std::weak_ptr<ShaderProgram> GetShader(const std::string& name);
-	std::weak_ptr<Texture2D> GetTexture2D(const std::string& name);
+	std::weak_ptr<ShaderProgram> GetShader(unsigned int index);
+	std::weak_ptr<Texture2D> GetTexture2D(unsigned int index);
 
-	std::weak_ptr<ShaderProgram> LoadShader(const LoadShaderOptions& options);
-	std::weak_ptr<Texture2D> LoadTexture2D(const LoadTextureOptions& options);
+	void LoadShader(LoadShaderOptions& options);
+
+	void LoadTexture2D(LoadTextureOptions& options);
 private:
-	ShaderProgram* LoadShaderFromFile(const LoadShaderOptions& options);
+	void InitShaderProgram(ShaderProgram* shaderProgram, const LoadShaderOptions& options);
 	void CompileShaderFromFile(Shader& shader, const char* filePath);
 
-	Texture2D* LoadTexture2DFromFile(const LoadTextureOptions& options);
+	void InitTexture2D(Texture2D* texture, const LoadTextureOptions& options);
 
-	std::unordered_map<std::string, std::shared_ptr<ShaderProgram>> mShaders;
-	std::unordered_map<std::string, std::shared_ptr<Texture2D>> mTextures;
+	std::vector<std::shared_ptr<ShaderProgram>> mShaders;
+	std::vector<std::shared_ptr<Texture2D>> mTextures;
 };
