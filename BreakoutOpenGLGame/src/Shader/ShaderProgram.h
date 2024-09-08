@@ -9,7 +9,7 @@ class ShaderProgram
 {
 public:
 	ShaderProgram();
-	virtual ~ShaderProgram();
+	~ShaderProgram();
 
 	void Init(const Shader& vertexShader, const Shader& fragmentShader, const Shader& geometryShader);
 	void Bind();

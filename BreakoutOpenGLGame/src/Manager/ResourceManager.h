@@ -2,32 +2,38 @@
 
 #include <vector>
 #include <memory>
+#include "Shader/ShaderProgram.h"
+#include "Texture/Texture2D.h"
 
-class ShaderProgram;
 class Shader;
-class Texture2D;
 
 class ResourceManager
 {
 public:
 	struct LoadShaderOptions
 	{
-		const char* vertexShaderPath;
-		const char* fragmentShaderPath;
-		const char* geometryShaderPath;
-		unsigned int index;
+		const char* vertexShaderPath = nullptr;
+		const char* fragmentShaderPath = nullptr;
+		const char* geometryShaderPath = nullptr;
+		unsigned int index = 0;
 	};
 
 	struct LoadTextureOptions
 	{
-		const char* path;
-		unsigned int index;
+		const char* path = nullptr;
+		unsigned int index = 0;
 	};
 
-	ResourceManager();
+	struct InitializationOptions
+	{
+		unsigned int numShaders = 0;
+		unsigned int numTextures = 0;
+	};
 
-	std::weak_ptr<ShaderProgram> GetShader(unsigned int index);
-	std::weak_ptr<Texture2D> GetTexture2D(unsigned int index);
+	ResourceManager(const InitializationOptions& options);
+
+	ShaderProgram* GetShader(unsigned int index);
+	Texture2D* GetTexture2D(unsigned int index);
 
 	unsigned int LoadShader(LoadShaderOptions& options);
 
@@ -38,6 +44,9 @@ private:
 
 	void InitTexture2D(Texture2D* texture, const LoadTextureOptions& options);
 
-	std::vector<std::shared_ptr<ShaderProgram>> mShaders;
-	std::vector<std::shared_ptr<Texture2D>> mTextures;
+	std::unique_ptr<ShaderProgram[]> mShaders;
+	std::unique_ptr<Texture2D[]> mTextures;
+
+	unsigned int numLoadedShaders = 0;
+	unsigned int numLoadedTextures = 0;
 };

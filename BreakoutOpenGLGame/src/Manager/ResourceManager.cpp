@@ -8,42 +8,35 @@
 #include "Texture/Texture2D.h"
 #include "External/stb_image.h"
 
-ResourceManager::ResourceManager() : mShaders(), mTextures()
+ResourceManager::ResourceManager(const InitializationOptions& options)
 {
-
+	mShaders = std::make_unique<ShaderProgram[]>(options.numShaders);
+	mTextures = std::make_unique<Texture2D[]>(options.numTextures);
 }
 
-std::weak_ptr<ShaderProgram> ResourceManager::GetShader(unsigned int index)
+ShaderProgram* ResourceManager::GetShader(unsigned int index)
 {
-	return std::weak_ptr<ShaderProgram>(mShaders[index]);
+	return &mShaders[index];
 }
 
-std::weak_ptr<Texture2D> ResourceManager::GetTexture2D(unsigned int index)
+Texture2D* ResourceManager::GetTexture2D(unsigned int index)
 {
-	return std::weak_ptr<Texture2D>(mTextures[index]);
+	return &mTextures[index];
 }
 
 unsigned int ResourceManager::LoadShader(LoadShaderOptions& options)
 {
-	std::shared_ptr<ShaderProgram> shaderPtr = std::make_shared<ShaderProgram>();
-	InitShaderProgram(shaderPtr.get(), options);
-	mShaders.push_back(std::move(shaderPtr));
-
-	unsigned int index = mShaders.size() - 1;
+	unsigned int index = numLoadedShaders++;
+	InitShaderProgram(&mShaders[index], options);
 	options.index = index;
-
 	return index;
 }
 
 unsigned int ResourceManager::LoadTexture2D(LoadTextureOptions& options)
 {
-	std::shared_ptr<Texture2D> texturePtr = std::make_shared<Texture2D>();
-	InitTexture2D(texturePtr.get(), options);
-	mTextures.push_back(std::move(texturePtr));
-
-	unsigned int index = mTextures.size() - 1;
+	unsigned int index = numLoadedTextures++;
+	InitTexture2D(&mTextures[index], options);
 	options.index = index;
-
 	return index;
 }
 

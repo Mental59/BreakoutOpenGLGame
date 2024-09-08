@@ -1,6 +1,7 @@
 #include <iostream>
 #include <glad/glad.h>
 #include <glfw3.h>
+#include <chrono>
 #include "Game.h"
 #include "Manager/ResourceManager.h"
 
@@ -11,7 +12,6 @@ static void framebufferSizeCallback(GLFWwindow* window, int width, int height);
 static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mode);
 
 Game GAME = Game(WINDOW_WIDTH, WINDOW_HEIGHT);
-ResourceManager RESOURCE_MANAGER = ResourceManager();
 
 int main()
 {
@@ -38,6 +38,11 @@ int main()
 	// Callbacks
 	glfwSetKeyCallback(window, keyCallback);
 	glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
+
+	ResourceManager::InitializationOptions resourceManagerInitOptions;
+	resourceManagerInitOptions.numShaders = 5;
+	resourceManagerInitOptions.numTextures = 5;
+	ResourceManager resourceManager = ResourceManager(resourceManagerInitOptions);
 
 	// OpenGL configuration
 	glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);

@@ -4,7 +4,7 @@ class Shader
 {
 public:
 	Shader(unsigned int type);
-	virtual ~Shader();
+	~Shader();
 
 	void Compile(const char* source);
 
