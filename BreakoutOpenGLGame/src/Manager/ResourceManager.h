@@ -1,6 +1,5 @@
 #pragma once
 
-#include <vector>
 #include <memory>
 #include "Shader/ShaderProgram.h"
 #include "Texture/Texture2D.h"
@@ -21,6 +20,7 @@ public:
 	struct LoadTextureOptions
 	{
 		const char* path = nullptr;
+		bool alpha = false;
 		unsigned int index = 0;
 	};
 
@@ -30,7 +30,9 @@ public:
 		unsigned int numTextures = 0;
 	};
 
-	ResourceManager(const InitializationOptions& options);
+	ResourceManager() = default;
+
+	void Init(const InitializationOptions& options);
 
 	ShaderProgram* GetShader(unsigned int index);
 	Texture2D* GetTexture2D(unsigned int index);

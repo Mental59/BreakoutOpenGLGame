@@ -1,5 +1,8 @@
 #pragma once
 
+#include "Manager/ResourceManager.h"
+#include "Renderer/SpriteRenderer.h"
+
 static int constexpr NUM_KEYS = 1024;
 
 enum GameState : unsigned char
@@ -14,13 +17,7 @@ class Game
 public:
 	Game(int width, int height);
 
-	void setKey(int key, bool value)
-	{
-		if (key >= 0 && key < NUM_KEYS)
-		{
-			mKeys[key] = value;
-		}
-	}
+	void SetKey(int key, bool value);
 
 	Game(Game& other) = delete;
 	Game& operator=(const Game& other) = delete;
@@ -35,6 +32,8 @@ public:
 
 private:
 	GameState mState;
+	ResourceManager mResourceManager;
+	SpriteRenderer mSpriteRenderer;
 	bool mKeys[NUM_KEYS];
 	int mWidth, mHeight;
 };

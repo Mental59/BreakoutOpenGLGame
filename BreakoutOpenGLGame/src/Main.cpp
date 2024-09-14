@@ -1,9 +1,7 @@
 #include <iostream>
 #include <glad/glad.h>
 #include <glfw3.h>
-#include <chrono>
 #include "Game.h"
-#include "Manager/ResourceManager.h"
 
 int WINDOW_WIDTH = 800;
 int WINDOW_HEIGHT = 600;
@@ -39,11 +37,6 @@ int main()
 	glfwSetKeyCallback(window, keyCallback);
 	glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
 
-	ResourceManager::InitializationOptions resourceManagerInitOptions;
-	resourceManagerInitOptions.numShaders = 5;
-	resourceManagerInitOptions.numTextures = 5;
-	ResourceManager resourceManager = ResourceManager(resourceManagerInitOptions);
-
 	// OpenGL configuration
 	glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 	glEnable(GL_BLEND);
@@ -51,6 +44,8 @@ int main()
 
 	double deltaTime = 0.0f;
 	double lastFrameTime = 0.0f;
+
+	GAME.Init();
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -93,10 +88,10 @@ static void keyCallback(GLFWwindow* window, int key, int scancode, int action, i
 
 	if (action == GLFW_PRESS)
 	{
-		GAME.setKey(key, true);
+		GAME.SetKey(key, true);
 	}
 	else if (action == GLFW_RELEASE)
 	{
-		GAME.setKey(key, false);
+		GAME.SetKey(key, false);
 	}
 }

@@ -147,6 +147,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Renderer\SpriteRenderer.cpp" />
     <ClCompile Include="src\Manager\ResourceManager.cpp" />
     <ClCompile Include="src\Shader\ShaderProgram.cpp" />
     <ClCompile Include="src\Shader\Shader.cpp" />
@@ -156,12 +157,17 @@
     <ClCompile Include="src\Texture\Texture2D.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Renderer\SpriteRenderer.h" />
     <ClInclude Include="src\Manager\ResourceManager.h" />
     <ClInclude Include="src\Shader\ShaderProgram.h" />
     <ClInclude Include="src\Shader\Shader.h" />
     <ClInclude Include="src\Game.h" />
     <ClInclude Include="src\External\stb_image.h" />
     <ClInclude Include="src\Texture\Texture2D.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="resources\shaders\sprite.vert" />
+    <None Include="resources\shaders\sprite.frag" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

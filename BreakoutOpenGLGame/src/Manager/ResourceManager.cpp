@@ -8,7 +8,7 @@
 #include "Texture/Texture2D.h"
 #include "External/stb_image.h"
 
-ResourceManager::ResourceManager(const InitializationOptions& options)
+void ResourceManager::Init(const InitializationOptions& options)
 {
 	mShaders = std::make_unique<ShaderProgram[]>(options.numShaders);
 	mTextures = std::make_unique<Texture2D[]>(options.numTextures);
