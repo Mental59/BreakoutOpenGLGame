@@ -20,7 +20,6 @@ public:
 	struct LoadTextureOptions
 	{
 		const char* Path = nullptr;
-		bool Alpha = false;
 	};
 
 	struct LoadLevelOptions
