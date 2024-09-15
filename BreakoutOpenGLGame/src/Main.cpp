@@ -3,8 +3,8 @@
 #include <glfw3.h>
 #include "Game.h"
 
-int WINDOW_WIDTH = 800;
-int WINDOW_HEIGHT = 600;
+int WINDOW_WIDTH = 1280;
+int WINDOW_HEIGHT = 720;
 
 static void framebufferSizeCallback(GLFWwindow* window, int width, int height);
 static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mode);
@@ -62,13 +62,10 @@ int main()
 
 		glfwPollEvents();
 
-		// Process input
 		GAME.ProcessInput(deltaTime);
 
-		// Update
 		GAME.Update(deltaTime);
 
-		// Render
 		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 		GAME.Render();

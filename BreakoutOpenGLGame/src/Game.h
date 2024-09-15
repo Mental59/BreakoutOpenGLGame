@@ -2,6 +2,7 @@
 
 #include "Manager/ResourceManager.h"
 #include "Renderer/SpriteRenderer.h"
+#include "Game/SpriteGameObject.h"
 
 static int constexpr NUM_KEYS = 1024;
 
@@ -29,11 +30,15 @@ public:
 
 private:
 	void InitResources();
+	void InitPlayer();
 
 	ResourceManager mResourceManager;
 	SpriteRenderer mSpriteRenderer;
+	SpriteGameObject mPlayer;
+
 	int mWidth, mHeight;
 	bool mKeys[NUM_KEYS];
 	unsigned int mLevelIndex;
+
 	GameState mState;
 };

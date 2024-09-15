@@ -31,6 +31,13 @@ public:
 	const inline bool isDestroyed() const { return mIsDestroyed; }
 	const inline Texture2D* GetSprite() const { return mSprite; }
 
+	const inline void SetPosition(const glm::vec2& position) { mPosition = position; }
+	const inline void SetSize(const glm::vec2& size) { mSize = size; }
+	const inline void SetVelocity(const glm::vec2& velocity) { mVelocity = velocity; }
+	const inline void SetColor(const glm::vec3& color) { mColor = color; }
+	const inline void SetRotation(const float rotation) { mRotation = rotation; }
+	const inline void SetDestroyed(const bool isDestroyed) { mIsDestroyed = isDestroyed; }
+
 private:
 	glm::vec2 mPosition, mSize, mVelocity;
 	glm::vec3 mColor;
