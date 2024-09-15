@@ -4,11 +4,12 @@ class Texture2D
 {
 public:
 	Texture2D();
+	Texture2D(Texture2D&& other) noexcept;
 	~Texture2D();
 
 	void Init(int width, int height, int numChannels, unsigned char* data);
-	void Bind();
-	void Unbind();
+	void Bind() const;
+	void Unbind() const;
 
 	inline void SetImageFormat(int imageFormat) { mImageFormat = imageFormat; }
 	inline void SetInternalFormat(unsigned int internalFormat) { mInternalFormat = internalFormat; }

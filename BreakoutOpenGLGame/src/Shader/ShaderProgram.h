@@ -9,11 +9,12 @@ class ShaderProgram
 {
 public:
 	ShaderProgram();
+	ShaderProgram(ShaderProgram&& other) noexcept;
 	~ShaderProgram();
 
 	void Init(const Shader& vertexShader, const Shader& fragmentShader, const Shader& geometryShader);
-	void Bind();
-	void Unbind();
+	void Bind() const;
+	void Unbind() const;
 
 	inline unsigned int GetID() const { return mID; }
 

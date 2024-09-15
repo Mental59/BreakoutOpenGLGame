@@ -15,22 +15,41 @@ Texture2D::Texture2D() :
 
 }
 
+Texture2D::Texture2D(Texture2D&& other) noexcept
+{
+	mWidth = other.mWidth;
+	mHeight = other.mHeight;
+	mNumChannels = other.mNumChannels;
+	mID = other.mID;
+	mImageFormat = other.mImageFormat;
+	mInternalFormat = other.mInternalFormat;
+	mWrapS = other.mWrapS;
+	mWrapT = other.mWrapT;
+	mMinFilter = other.mMinFilter;
+	mMagFilter = other.mMagFilter;
+
+	other.mID = 0;
+}
+
 Texture2D::~Texture2D()
 {
-#ifdef _DEBUG
-	std::cout << "Texture with id " << mID << " destroyed" << std::endl;
-#endif // _DEBUG
-
 	glDeleteTextures(1, &mID);
+
+#ifdef _DEBUG
+	if (mID > 0)
+	{
+		std::cout << "Texture with id " << mID << " destroyed" << std::endl;
+	}
+#endif // _DEBUG
 }
 
 
-void Texture2D::Bind()
+void Texture2D::Bind() const
 {
 	glBindTexture(GL_TEXTURE_2D, mID);
 }
 
-void Texture2D::Unbind()
+void Texture2D::Unbind() const
 {
 	glBindTexture(GL_TEXTURE_2D, 0);
 }

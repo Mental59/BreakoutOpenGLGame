@@ -16,11 +16,10 @@ class Game
 {
 public:
 	Game(int width, int height);
-
-	void SetKey(int key, bool value);
-
 	Game(Game& other) = delete;
 	Game& operator=(const Game& other) = delete;
+
+	void SetKey(int key, bool value);
 
 	void Init();
 
@@ -28,12 +27,13 @@ public:
 	void Update(float dt);
 	void Render();
 
-	~Game();
-
 private:
-	GameState mState;
+	void InitResources();
+
 	ResourceManager mResourceManager;
 	SpriteRenderer mSpriteRenderer;
-	bool mKeys[NUM_KEYS];
 	int mWidth, mHeight;
+	bool mKeys[NUM_KEYS];
+	unsigned int mLevelIndex;
+	GameState mState;
 };

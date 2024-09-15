@@ -9,12 +9,14 @@ Shader::Shader(unsigned int type) : mID(0), mType(type)
 
 Shader::~Shader()
 {
-#ifdef _DEBUG
-	std::cout << "Shader with id " << mID << " destroyed" << std::endl;
-#endif // _DEBUG
-
 	glDeleteShader(mID);
-	mID = 0;
+
+#ifdef _DEBUG
+	if (mID > 0)
+	{
+		std::cout << "Shader with id " << mID << " destroyed" << std::endl;
+	}
+#endif // _DEBUG
 }
 
 void Shader::Compile(const char* source)

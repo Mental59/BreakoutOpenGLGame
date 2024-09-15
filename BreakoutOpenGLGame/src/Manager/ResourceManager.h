@@ -1,8 +1,9 @@
 #pragma once
 
-#include <memory>
+#include <vector>
 #include "Shader/ShaderProgram.h"
 #include "Texture/Texture2D.h"
+#include "Game/GameLevel.h"
 
 class Shader;
 
@@ -11,44 +12,43 @@ class ResourceManager
 public:
 	struct LoadShaderOptions
 	{
-		const char* vertexShaderPath = nullptr;
-		const char* fragmentShaderPath = nullptr;
-		const char* geometryShaderPath = nullptr;
-		unsigned int index = 0;
+		const char* VertexShaderPath = nullptr;
+		const char* FragmentShaderPath = nullptr;
+		const char* GeometryShaderPath = nullptr;
 	};
 
 	struct LoadTextureOptions
 	{
-		const char* path = nullptr;
-		bool alpha = false;
-		unsigned int index = 0;
+		const char* Path = nullptr;
+		bool Alpha = false;
 	};
 
-	struct InitializationOptions
+	struct LoadLevelOptions
 	{
-		unsigned int numShaders = 0;
-		unsigned int numTextures = 0;
+		const char* Path = nullptr;
+		unsigned int LevelWidth = 0;
+		unsigned int LevelHeight = 0;
+		Texture2D* blockTexture = nullptr;
+		Texture2D* solidBlockTexture = nullptr;
 	};
 
 	ResourceManager() = default;
 
-	void Init(const InitializationOptions& options);
-
 	ShaderProgram* GetShader(unsigned int index);
 	Texture2D* GetTexture2D(unsigned int index);
+	GameLevel* GetLevel(unsigned int index);
 
-	unsigned int LoadShader(LoadShaderOptions& options);
-
-	unsigned int LoadTexture2D(LoadTextureOptions& options);
+	unsigned int LoadShader(const LoadShaderOptions& options);
+	unsigned int LoadTexture2D(const LoadTextureOptions& options);
+	unsigned int LoadLevel(const LoadLevelOptions& options);
 private:
 	void InitShaderProgram(ShaderProgram* shaderProgram, const LoadShaderOptions& options);
 	void CompileShaderFromFile(Shader& shader, const char* filePath);
 
 	void InitTexture2D(Texture2D* texture, const LoadTextureOptions& options);
+	void InitLevel(GameLevel* level, const LoadLevelOptions& options);
 
-	std::unique_ptr<ShaderProgram[]> mShaders;
-	std::unique_ptr<Texture2D[]> mTextures;
-
-	unsigned int numLoadedShaders = 0;
-	unsigned int numLoadedTextures = 0;
+	std::vector<ShaderProgram> mShaders;
+	std::vector<Texture2D> mTextures;
+	std::vector<GameLevel> mLevels;
 };

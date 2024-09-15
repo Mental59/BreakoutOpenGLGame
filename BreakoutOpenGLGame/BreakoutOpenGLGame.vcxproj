@@ -147,6 +147,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Game\GameLevel.cpp" />
+    <ClCompile Include="src\Game\SpriteGameObject.cpp" />
     <ClCompile Include="src\Renderer\SpriteRenderer.cpp" />
     <ClCompile Include="src\Manager\ResourceManager.cpp" />
     <ClCompile Include="src\Shader\ShaderProgram.cpp" />
@@ -157,6 +159,8 @@
     <ClCompile Include="src\Texture\Texture2D.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Game\GameLevel.h" />
+    <ClInclude Include="src\Game\SpriteGameObject.h" />
     <ClInclude Include="src\Renderer\SpriteRenderer.h" />
     <ClInclude Include="src\Manager\ResourceManager.h" />
     <ClInclude Include="src\Shader\ShaderProgram.h" />

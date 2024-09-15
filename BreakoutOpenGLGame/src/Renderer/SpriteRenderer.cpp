@@ -5,6 +5,8 @@
 #include "SpriteRenderer.h"
 #include "Shader/ShaderProgram.h"
 #include "Texture/Texture2D.h"
+#include "Game/SpriteGameObject.h"
+#include "Game/GameLevel.h"
 
 SpriteRenderer::SpriteRenderer() : mVAO(0), mVBO(0)
 {
@@ -24,12 +26,12 @@ void SpriteRenderer::Init()
 
 void SpriteRenderer::Draw(
 	ShaderProgram* shader,
-	Texture2D* texture,
-	glm::vec2 position,
-	glm::vec2 size,
-	float rotate,
-	glm::vec3 color
-)
+	const Texture2D* texture,
+	const glm::vec2& position,
+	const glm::vec2& size,
+	const float rotate,
+	const glm::vec3& color
+) const
 {
 	shader->Bind();
 
@@ -51,6 +53,35 @@ void SpriteRenderer::Draw(
 	glBindVertexArray(mVAO);
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 	glBindVertexArray(0);
+}
+
+void SpriteRenderer::DrawGameObject(
+	ShaderProgram* shader,
+	const SpriteGameObject* gameObject
+) const
+{
+	Draw(
+		shader,
+		gameObject->GetSprite(),
+		gameObject->GetPosition(),
+		gameObject->GetSize(),
+		gameObject->GetRotation(),
+		gameObject->GetColor()
+	);
+}
+
+void SpriteRenderer::DrawGameLevel(ShaderProgram* shader, const GameLevel* level) const
+{
+	unsigned int numBricks = level->GetNumBricks();
+	SpriteGameObject* bricks = level->GetBricks();
+
+	for (unsigned int i = 0; i < numBricks; i++)
+	{
+		if (!bricks[i].isDestroyed())
+		{
+			DrawGameObject(shader, &bricks[i]);
+		}
+	}
 }
 
 void SpriteRenderer::InitRenderData()

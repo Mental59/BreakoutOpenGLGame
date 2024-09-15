@@ -8,13 +8,22 @@ ShaderProgram::ShaderProgram() : mID(0)
 
 }
 
+ShaderProgram::ShaderProgram(ShaderProgram&& other) noexcept
+{
+	mID = other.mID;
+	other.mID = 0;
+}
+
 ShaderProgram::~ShaderProgram()
 {
-#ifdef _DEBUG
-	std::cout << "Shader program with id " << mID << " destroyed" << std::endl;
-#endif // _DEBUG
-
 	glDeleteProgram(mID);
+
+#ifdef _DEBUG
+	if (mID > 0)
+	{
+		std::cout << "Shader program with id " << mID << " destroyed" << std::endl;
+	}
+#endif // _DEBUG
 }
 
 void ShaderProgram::Init(const Shader& vertexShader, const Shader& fragmentShader, const Shader& geometryShader)
@@ -56,12 +65,12 @@ void ShaderProgram::Init(const Shader& vertexShader, const Shader& fragmentShade
 	mID = shaderProgram;
 }
 
-void ShaderProgram::Bind()
+void ShaderProgram::Bind() const
 {
 	glUseProgram(mID);
 }
 
-void ShaderProgram::Unbind()
+void ShaderProgram::Unbind() const
 {
 	glUseProgram(0);
 }
