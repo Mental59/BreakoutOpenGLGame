@@ -3,6 +3,7 @@
 #include "Manager/ResourceManager.h"
 #include "Renderer/SpriteRenderer.h"
 #include "Game/GameObject.h"
+#include "Game/BallGameObject.h"
 
 static int constexpr NUM_KEYS = 1024;
 
@@ -31,10 +32,12 @@ public:
 private:
 	void InitResources();
 	void InitPlayer();
+	void InitBall();
 
 	ResourceManager mResourceManager;
 	SpriteRenderer mSpriteRenderer;
 	GameObject mPlayer;
+	BallGameObject mBall;
 
 	int mWidth, mHeight;
 	bool mKeys[NUM_KEYS];

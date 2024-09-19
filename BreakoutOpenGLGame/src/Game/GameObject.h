@@ -34,10 +34,9 @@ public:
 	const inline void SetColor(const glm::vec3& color) { mColor = color; }
 	const inline void SetRotation(const float rotation) { mRotation = rotation; }
 
-private:
+protected:
 	glm::vec2 mPosition, mSize, mVelocity;
 	glm::vec3 mColor;
 	float mRotation;
 	Texture2D* mSprite;
-
 };

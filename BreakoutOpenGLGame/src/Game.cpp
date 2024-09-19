@@ -7,6 +7,8 @@
 #include "Shader/ShaderProgram.h"
 #include "Texture/Texture2D.h"
 #include "Game/GameLevel.h"
+#include "Game/GameObject.h"
+#include "Game/BallGameObject.h"
 
 static unsigned int SPRITE_SHADER_INDEX;
 static unsigned int TEXTURE_AWESOMEFACE_INDEX;
@@ -40,6 +42,7 @@ void Game::Init()
 	mSpriteRenderer.Init();
 	InitResources();
 	InitPlayer();
+	InitBall();
 }
 
 void Game::ProcessInput(float dt)
@@ -52,20 +55,32 @@ void Game::ProcessInput(float dt)
 
 		if (mKeys[GLFW_KEY_A] && playerPos.x > 0.0f)
 		{
-			playerPos.x -= playerVelocity.x * dt;
+			float displacementX = -playerVelocity.x * dt;
+
+			playerPos.x += displacementX;
 			mPlayer.SetPosition(playerPos);
+
+			mBall.FollowPaddle(displacementX);
 		}
 		if (mKeys[GLFW_KEY_D] && playerPos.x < mWidth - playerSize.x)
 		{
-			playerPos.x += playerVelocity.x * dt;
+			float displacementX = playerVelocity.x * dt;
+
+			playerPos.x += displacementX;
 			mPlayer.SetPosition(playerPos);
+
+			mBall.FollowPaddle(displacementX);
+		}
+		if (mKeys[GLFW_KEY_SPACE])
+		{
+			mBall.Activate();
 		}
 	}
 }
 
 void Game::Update(float dt)
 {
-
+	mBall.Move(dt, static_cast<float>(mWidth));
 }
 
 void Game::Render()
@@ -80,6 +95,7 @@ void Game::Render()
 		mSpriteRenderer.Draw(spriteShader, backgroundTexture, glm::vec2(0.0f), glm::vec2(mWidth, mHeight), 0.0f, glm::vec3(1.0f));
 		mSpriteRenderer.DrawGameLevel(spriteShader, currentLevel);
 		mSpriteRenderer.DrawGameObject(spriteShader, &mPlayer);
+		mSpriteRenderer.DrawGameObject(spriteShader, &mBall);
 	}
 }
 
@@ -127,18 +143,32 @@ void Game::InitResources()
 
 void Game::InitPlayer()
 {
-	glm::vec2 playerSize(100.0f, 20.0f);
-	glm::vec2 playerPos(
+	const glm::vec2 playerSize(100.0f, 20.0f);
+	const glm::vec2 playerPos(
 		static_cast<float>(mWidth) / 2.0f - playerSize.x / 2.0f,
 		static_cast<float>(mHeight) - playerSize.y - 10.0f
 	);
-	glm::vec2 velocity(500.0f, 0.0f);
-	Texture2D* paddleTexture = mResourceManager.GetTexture2D(TEXTURE_PADDLE_INDEX);
 
 	GameObject::GameObjectInitOptions initOptions;
 	initOptions.Position = playerPos;
 	initOptions.Size = playerSize;
-	initOptions.Sprite = paddleTexture;
-	initOptions.Velocity = velocity;
+	initOptions.Sprite = mResourceManager.GetTexture2D(TEXTURE_PADDLE_INDEX);
+	initOptions.Velocity = glm::vec2(500.0f, 0.0f);
 	mPlayer.Init(initOptions);
+}
+
+void Game::InitBall()
+{
+	const float radius = 12.5f;
+
+	glm::vec2 playerPos = mPlayer.GetPosition();
+	glm::vec2 playerSize = mPlayer.GetSize();
+
+	BallGameObject::BallInitOptions options;
+	options.Position = playerPos + glm::vec2(playerSize.x / 2.0f - radius, -radius * 2.0f);
+	options.Size = glm::vec2(radius * 2.0f, radius * 2.0f);
+	options.Sprite = mResourceManager.GetTexture2D(TEXTURE_AWESOMEFACE_INDEX);
+	options.Velocity = glm::vec2(100.0f, -350.0f);
+
+	mBall.Init(options);
 }
