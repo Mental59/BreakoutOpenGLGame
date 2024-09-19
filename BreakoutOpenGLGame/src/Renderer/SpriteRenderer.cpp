@@ -6,6 +6,7 @@
 #include "Shader/ShaderProgram.h"
 #include "Texture/Texture2D.h"
 #include "Game/GameObject.h"
+#include "Game/BrickGameObject.h"
 #include "Game/GameLevel.h"
 
 SpriteRenderer::SpriteRenderer() : mVAO(0), mVBO(0)
@@ -73,11 +74,11 @@ void SpriteRenderer::DrawGameObject(
 void SpriteRenderer::DrawGameLevel(ShaderProgram* shader, const GameLevel* level) const
 {
 	unsigned int numBricks = level->GetNumBricks();
-	GameObject* bricks = level->GetBricks();
+	BrickGameObject* bricks = level->GetBricks();
 
 	for (unsigned int i = 0; i < numBricks; i++)
 	{
-		if (!bricks[i].isDestroyed())
+		if (!bricks[i].IsDestroyed())
 		{
 			DrawGameObject(shader, &bricks[i]);
 		}

@@ -1,7 +1,7 @@
 #include <memory>
 #include <glm/glm.hpp>
 #include "GameLevel.h"
-#include "Game/GameObject.h"
+#include "Game/BrickGameObject.h"
 
 GameLevel::GameLevel(GameLevel&& other) noexcept
 {
@@ -18,7 +18,7 @@ void GameLevel::Init(const InitOptions& options)
 	}
 
 	mBricks.reset();
-	mBricks = std::make_unique<GameObject[]>(numBlocks);
+	mBricks = std::make_unique<BrickGameObject[]>(numBlocks);
 	mNumBricks = numBlocks;
 
 	float unitWidth = static_cast<float>(options.LevelWidth) / static_cast<float>(options.NumColums);
@@ -37,7 +37,7 @@ void GameLevel::Init(const InitOptions& options)
 				continue;
 			}
 
-			GameObject::InitOptions initOptions;
+			BrickGameObject::BrickInitOptins initOptions;
 			initOptions.Position = glm::vec2(unitWidth * x, unitHeight * y);
 			initOptions.Size = glm::vec2(unitWidth, unitHeight);
 			initOptions.Sprite = options.blockTexture;
@@ -73,7 +73,7 @@ bool GameLevel::IsCompleted() const
 {
 	for (unsigned int i = 0; i < mNumBricks; i++)
 	{
-		if (!mBricks[i].IsSolid() && !mBricks[i].isDestroyed())
+		if (!mBricks[i].IsSolid() && !mBricks[i].IsDestroyed())
 		{
 			return false;
 		}

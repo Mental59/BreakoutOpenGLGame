@@ -1,6 +1,6 @@
 #include "GameObject.h"
 
-void GameObject::Init(const InitOptions& options)
+void GameObject::Init(const GameObjectInitOptions& options)
 {
 	mPosition = options.Position;
 	mSize = options.Size;
@@ -8,6 +8,4 @@ void GameObject::Init(const InitOptions& options)
 	mColor = options.Color;
 	mRotation = options.Rotation;
 	mSprite = options.Sprite;
-	mIsSolid = options.IsSolid;
-	mIsDestroyed = false;
 }
