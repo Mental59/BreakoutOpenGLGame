@@ -1,7 +1,7 @@
 #include <memory>
 #include <glm/glm.hpp>
 #include "GameLevel.h"
-#include "Game/SpriteGameObject.h"
+#include "Game/GameObject.h"
 
 GameLevel::GameLevel(GameLevel&& other) noexcept
 {
@@ -18,7 +18,7 @@ void GameLevel::Init(const InitOptions& options)
 	}
 
 	mBricks.reset();
-	mBricks = std::make_unique<SpriteGameObject[]>(numBlocks);
+	mBricks = std::make_unique<GameObject[]>(numBlocks);
 	mNumBricks = numBlocks;
 
 	float unitWidth = static_cast<float>(options.LevelWidth) / static_cast<float>(options.NumColums);
@@ -37,7 +37,7 @@ void GameLevel::Init(const InitOptions& options)
 				continue;
 			}
 
-			SpriteGameObject::InitOptions initOptions;
+			GameObject::InitOptions initOptions;
 			initOptions.Position = glm::vec2(unitWidth * x, unitHeight * y);
 			initOptions.Size = glm::vec2(unitWidth, unitHeight);
 			initOptions.Sprite = options.blockTexture;

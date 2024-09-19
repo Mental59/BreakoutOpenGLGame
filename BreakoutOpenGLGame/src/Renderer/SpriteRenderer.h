@@ -4,7 +4,7 @@
 
 class ShaderProgram;
 class Texture2D;
-class SpriteGameObject;
+class GameObject;
 class GameLevel;
 
 class SpriteRenderer
@@ -26,7 +26,7 @@ public:
 
 	void DrawGameObject(
 		ShaderProgram* shader,
-		const SpriteGameObject* gameObject
+		const GameObject* gameObject
 	) const;
 
 	void DrawGameLevel(ShaderProgram* shader, const GameLevel* level) const;

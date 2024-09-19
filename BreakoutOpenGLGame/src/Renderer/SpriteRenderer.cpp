@@ -5,7 +5,7 @@
 #include "SpriteRenderer.h"
 #include "Shader/ShaderProgram.h"
 #include "Texture/Texture2D.h"
-#include "Game/SpriteGameObject.h"
+#include "Game/GameObject.h"
 #include "Game/GameLevel.h"
 
 SpriteRenderer::SpriteRenderer() : mVAO(0), mVBO(0)
@@ -57,7 +57,7 @@ void SpriteRenderer::Draw(
 
 void SpriteRenderer::DrawGameObject(
 	ShaderProgram* shader,
-	const SpriteGameObject* gameObject
+	const GameObject* gameObject
 ) const
 {
 	Draw(
@@ -73,7 +73,7 @@ void SpriteRenderer::DrawGameObject(
 void SpriteRenderer::DrawGameLevel(ShaderProgram* shader, const GameLevel* level) const
 {
 	unsigned int numBricks = level->GetNumBricks();
-	SpriteGameObject* bricks = level->GetBricks();
+	GameObject* bricks = level->GetBricks();
 
 	for (unsigned int i = 0; i < numBricks; i++)
 	{

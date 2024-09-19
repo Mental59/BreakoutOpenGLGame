@@ -9,7 +9,7 @@
 #include "Shader/Shader.h";
 #include "Texture/Texture2D.h"
 #include "Game/GameLevel.h"
-#include "Game/SpriteGameObject.h"
+#include "Game/GameObject.h"
 
 
 ShaderProgram* ResourceManager::GetShader(unsigned int index)

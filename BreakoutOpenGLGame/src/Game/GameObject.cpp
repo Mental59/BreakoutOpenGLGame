@@ -1,6 +1,6 @@
-#include "SpriteGameObject.h"
+#include "GameObject.h"
 
-void SpriteGameObject::Init(const InitOptions& options)
+void GameObject::Init(const InitOptions& options)
 {
 	mPosition = options.Position;
 	mSize = options.Size;

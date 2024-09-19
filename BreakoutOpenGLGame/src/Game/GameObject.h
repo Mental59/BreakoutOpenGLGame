@@ -5,7 +5,7 @@
 class Texture2D;
 class SpriteRenderer;
 
-class SpriteGameObject
+class GameObject
 {
 public:
 	struct InitOptions
@@ -19,7 +19,7 @@ public:
 		bool IsSolid = false;
 	};
 
-	SpriteGameObject() = default;
+	GameObject() = default;
 	void Init(const InitOptions& options);
 
 	const inline glm::vec2& GetPosition() const { return mPosition; }

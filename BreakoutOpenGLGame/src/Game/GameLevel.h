@@ -1,7 +1,7 @@
 #pragma once
 
 #include <memory>
-#include "Game/SpriteGameObject.h"
+#include "Game/GameObject.h"
 
 class Texture2D;
 
@@ -24,9 +24,9 @@ public:
 	bool IsCompleted() const;
 
 	inline unsigned int GetNumBricks() const { return mNumBricks; }
-	inline SpriteGameObject* GetBricks() const { return mBricks.get(); }
+	inline GameObject* GetBricks() const { return mBricks.get(); }
 
 private:
-	std::unique_ptr<SpriteGameObject[]> mBricks;
+	std::unique_ptr<GameObject[]> mBricks;
 	unsigned int mNumBricks;
 };

@@ -135,7 +135,7 @@ void Game::InitPlayer()
 	glm::vec2 velocity(500.0f, 0.0f);
 	Texture2D* paddleTexture = mResourceManager.GetTexture2D(TEXTURE_PADDLE_INDEX);
 
-	SpriteGameObject::InitOptions initOptions;
+	GameObject::InitOptions initOptions;
 	initOptions.Position = playerPos;
 	initOptions.Size = playerSize;
 	initOptions.Sprite = paddleTexture;
