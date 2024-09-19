@@ -2,14 +2,12 @@
 #include <fstream>
 #include <sstream>
 #include <memory>
-#include <iostream>
 #include "External/stb_image.h"
 #include "ResourceManager.h"
 #include "Shader/ShaderProgram.h";
 #include "Shader/Shader.h";
 #include "Texture/Texture2D.h"
 #include "Game/GameLevel.h"
-#include "Game/GameObject.h"
 
 
 ShaderProgram* ResourceManager::GetShader(unsigned int index)
