@@ -1,5 +1,6 @@
 #include "BallGameObject.h"
 #include "GameObject.h"
+#include "BrickGameObject.h"
 
 void BallGameObject::Init(const BallInitOptions& options)
 {
@@ -41,4 +42,16 @@ void BallGameObject::FollowPaddle(const float playerDisplacementX)
 	}
 
 	mPosition.x += playerDisplacementX;
+}
+
+bool BallGameObject::Collides(const BrickGameObject* brick) const
+{
+	const glm::vec2 brickHalfSize = brick->GetSize() / 2.0f;
+	const glm::vec2 brickCenter = brick->GetPosition() + brickHalfSize;
+
+	const glm::vec2 ballCenter = mPosition + mRadius;
+
+	const glm::vec2 closest = brickCenter + glm::clamp(ballCenter - brickCenter, -brickHalfSize, brickHalfSize);
+
+	return glm::length(closest - ballCenter) < mRadius;
 }

@@ -81,6 +81,7 @@ void Game::ProcessInput(float dt)
 void Game::Update(float dt)
 {
 	mBall.Move(dt, static_cast<float>(mWidth));
+	CheckCollisions();
 }
 
 void Game::Render()
@@ -96,6 +97,21 @@ void Game::Render()
 		mSpriteRenderer.DrawGameLevel(spriteShader, currentLevel);
 		mSpriteRenderer.DrawGameObject(spriteShader, &mPlayer);
 		mSpriteRenderer.DrawGameObject(spriteShader, &mBall);
+	}
+}
+
+void Game::CheckCollisions()
+{
+	GameLevel* currentLevel = mResourceManager.GetLevel(mLevelIndex);
+	BrickGameObject* bricks = currentLevel->GetBricks();
+	for (unsigned int i = 0; i < currentLevel->GetNumBricks(); i++)
+	{
+		const bool isBrickCollidable = !bricks[i].IsDestroyed() && !bricks[i].IsSolid();
+
+		if (isBrickCollidable && mBall.Collides(bricks + i))
+		{
+			bricks[i].SetDestroyed(true);
+		}
 	}
 }
 
@@ -169,6 +185,7 @@ void Game::InitBall()
 	options.Size = glm::vec2(radius * 2.0f, radius * 2.0f);
 	options.Sprite = mResourceManager.GetTexture2D(TEXTURE_AWESOMEFACE_INDEX);
 	options.Velocity = glm::vec2(100.0f, -350.0f);
+	options.Radius = radius;
 
 	mBall.Init(options);
 }

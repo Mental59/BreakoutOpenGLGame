@@ -29,6 +29,8 @@ public:
 	void Update(float dt);
 	void Render();
 
+	void CheckCollisions();
+
 private:
 	void InitResources();
 	void InitPlayer();

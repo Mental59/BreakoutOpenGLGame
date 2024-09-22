@@ -2,6 +2,8 @@
 
 #include "GameObject.h"
 
+class BrickGameObject;
+
 class BallGameObject : public GameObject
 {
 public:
@@ -15,6 +17,7 @@ public:
 
 	inline void Activate() { mIsActive = true; }
 	void FollowPaddle(const float playerDisplacementX);
+	bool Collides(const BrickGameObject* brick) const;
 
 private:
 	float mRadius;
