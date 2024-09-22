@@ -22,6 +22,7 @@ public:
 
 	void Init(const InitOptions& options);
 	bool IsCompleted() const;
+	void Reset();
 
 	inline unsigned int GetNumBricks() const { return mNumBricks; }
 	inline BrickGameObject* GetBricks() const { return mBricks.get(); }

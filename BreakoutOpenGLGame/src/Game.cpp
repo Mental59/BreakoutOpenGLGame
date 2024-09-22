@@ -82,6 +82,11 @@ void Game::Update(float dt)
 {
 	mBall.Move(dt, static_cast<float>(mWidth));
 	CheckCollisions();
+
+	if (mBall.GetPosition().y >= mHeight)
+	{
+		ResetCurrentLevel();
+	}
 }
 
 void Game::Render()
@@ -102,16 +107,70 @@ void Game::Render()
 
 void Game::CheckCollisions()
 {
+	if (!mBall.IsActive())
+	{
+		return;
+	}
+
 	GameLevel* currentLevel = mResourceManager.GetLevel(mLevelIndex);
 	BrickGameObject* bricks = currentLevel->GetBricks();
 	for (unsigned int i = 0; i < currentLevel->GetNumBricks(); i++)
 	{
-		const bool isBrickCollidable = !bricks[i].IsDestroyed() && !bricks[i].IsSolid();
-
-		if (isBrickCollidable && mBall.Collides(bricks + i))
+		if (bricks[i].IsDestroyed())
 		{
-			bricks[i].SetDestroyed(true);
+			continue;
 		}
+
+		BallGameObject::BallHitResult hitResult = mBall.Collides(bricks + i);
+
+		if (hitResult.Collided)
+		{
+			bricks[i].Destroy();
+
+			glm::vec2 penetrationDistance = mBall.GetRadius() - glm::abs(hitResult.HitPoint - mBall.GetCenter());
+			glm::vec2 ballPosition = mBall.GetPosition();
+			glm::vec2 ballVelosity = mBall.GetVelocity();
+
+			switch (hitResult.BrickSideDirection)
+			{
+			case VectorDirection::Up:
+				ballVelosity.y = -ballVelosity.y;
+				ballPosition.y -= penetrationDistance.y;
+				break;
+			case VectorDirection::Right:
+				ballVelosity.x = -ballVelosity.x;
+				ballPosition.x -= penetrationDistance.x;
+				break;
+			case VectorDirection::Down:
+				ballVelosity.y = -ballVelosity.y;
+				ballPosition.y += penetrationDistance.y;
+				break;
+			case VectorDirection::Left:
+				ballVelosity.x = -ballVelosity.x;
+				ballPosition.x += penetrationDistance.x;
+				break;
+			}
+
+			mBall.SetPosition(ballPosition);
+			mBall.SetVelocity(ballVelosity);
+		}
+	}
+
+	BallGameObject::BallHitResult hitWithPaddle = mBall.Collides(&mPlayer);
+	if (hitWithPaddle.Collided)
+	{
+		glm::vec2 ballCenter = mBall.GetCenter();
+		glm::vec2 paddleCenter = mPlayer.GetPosition() + mPlayer.GetSize() / 2.0f;
+		glm::vec2 paddleToBall = ballCenter - paddleCenter;
+
+		float percentage = paddleToBall.x / (mPlayer.GetSize().x / 2.0f);
+
+		glm::vec2 newBallVelocity = mBall.GetVelocity();
+		newBallVelocity.x = mBall.GetInitialVelocity().x * percentage * 2.0f;
+		newBallVelocity.y = -std::abs(newBallVelocity.y);
+		newBallVelocity = glm::normalize(newBallVelocity) * glm::length(mBall.GetVelocity());
+
+		mBall.SetVelocity(newBallVelocity);
 	}
 }
 
@@ -188,4 +247,12 @@ void Game::InitBall()
 	options.Radius = radius;
 
 	mBall.Init(options);
+}
+
+void Game::ResetCurrentLevel()
+{
+	InitPlayer();
+	InitBall();
+
+	mResourceManager.GetLevel(mLevelIndex)->Reset();
 }

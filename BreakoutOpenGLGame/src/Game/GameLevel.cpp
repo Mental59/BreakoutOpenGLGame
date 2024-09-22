@@ -41,6 +41,7 @@ void GameLevel::Init(const InitOptions& options)
 			initOptions.Position = glm::vec2(unitWidth * x, unitHeight * y);
 			initOptions.Size = glm::vec2(unitWidth, unitHeight);
 			initOptions.Sprite = options.blockTexture;
+
 			if (tileCode == 1) // solid brick
 			{
 				initOptions.IsSolid = true;
@@ -79,4 +80,12 @@ bool GameLevel::IsCompleted() const
 		}
 	}
 	return true;
+}
+
+void GameLevel::Reset()
+{
+	for (unsigned int i = 0; i < mNumBricks; i++)
+	{
+		mBricks[i].Reset();
+	}
 }

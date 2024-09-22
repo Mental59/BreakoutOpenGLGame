@@ -36,6 +36,8 @@ private:
 	void InitPlayer();
 	void InitBall();
 
+	void ResetCurrentLevel();
+
 	ResourceManager mResourceManager;
 	SpriteRenderer mSpriteRenderer;
 	GameObject mPlayer;

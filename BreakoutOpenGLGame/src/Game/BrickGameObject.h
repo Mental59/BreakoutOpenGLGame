@@ -11,11 +11,12 @@ public:
 	};
 
 	void Init(const BrickInitOptins& options);
+	void Reset();
 
 	const inline bool IsSolid() const { return mIsSolid; }
 	const inline bool IsDestroyed() const { return mIsDestroyed; }
 
-	const inline void SetDestroyed(const bool isDestroyed) { mIsDestroyed = isDestroyed; }
+	const inline void Destroy() { mIsDestroyed = !mIsSolid && true; }
 
 private:
 	bool mIsSolid;

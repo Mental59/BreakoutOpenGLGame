@@ -172,6 +172,7 @@
     <ClInclude Include="src\Game.h" />
     <ClInclude Include="src\External\stb_image.h" />
     <ClInclude Include="src\Texture\Texture2D.h" />
+    <ClInclude Include="src\Utils\Vector.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="resources\shaders\sprite.vert" />

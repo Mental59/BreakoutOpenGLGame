@@ -1,11 +1,13 @@
 #include "BallGameObject.h"
 #include "GameObject.h"
-#include "BrickGameObject.h"
+#include "Utils/Vector.h"
 
 void BallGameObject::Init(const BallInitOptions& options)
 {
 	GameObject::Init(options);
 	mRadius = options.Radius;
+	mInitialVelocity = options.Velocity;
+	mIsActive = false;
 }
 
 void BallGameObject::Move(float dt, float windowWidth)
@@ -44,14 +46,21 @@ void BallGameObject::FollowPaddle(const float playerDisplacementX)
 	mPosition.x += playerDisplacementX;
 }
 
-bool BallGameObject::Collides(const BrickGameObject* brick) const
+BallGameObject::BallHitResult BallGameObject::Collides(const GameObject* gameObject) const
 {
-	const glm::vec2 brickHalfSize = brick->GetSize() / 2.0f;
-	const glm::vec2 brickCenter = brick->GetPosition() + brickHalfSize;
+	const glm::vec2 brickHalfSize = gameObject->GetSize() / 2.0f;
+	const glm::vec2 brickCenter = gameObject->GetPosition() + brickHalfSize;
 
 	const glm::vec2 ballCenter = mPosition + mRadius;
 
-	const glm::vec2 closest = brickCenter + glm::clamp(ballCenter - brickCenter, -brickHalfSize, brickHalfSize);
+	const glm::vec2 closestPoint = brickCenter + glm::clamp(ballCenter - brickCenter, -brickHalfSize, brickHalfSize);
+	const glm::vec2 ballCenterToClosestPoint = closestPoint - ballCenter;
 
-	return glm::length(closest - ballCenter) < mRadius;
+	if (glm::length(ballCenterToClosestPoint) <= mRadius)
+	{
+		VectorDirection direction = GetVectorDirection(glm::normalize(-ballCenterToClosestPoint));
+		return { true, closestPoint, direction };
+	}
+
+	return { false };
 }

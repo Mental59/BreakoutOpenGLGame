@@ -6,3 +6,8 @@ void BrickGameObject::Init(const BrickInitOptins& options)
 	GameObject::Init(options);
 	mIsSolid = options.IsSolid;
 }
+
+void BrickGameObject::Reset()
+{
+	mIsDestroyed = false;
+}
