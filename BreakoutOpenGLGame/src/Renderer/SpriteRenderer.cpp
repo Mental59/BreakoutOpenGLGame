@@ -8,6 +8,8 @@
 #include "Game/GameObject.h"
 #include "Game/BrickGameObject.h"
 #include "Game/GameLevel.h"
+#include "Particle/Particle.h"
+#include "Particle/ParticleEmitter.h"
 
 SpriteRenderer::SpriteRenderer() : mVAO(0), mVBO(0)
 {
@@ -31,7 +33,7 @@ void SpriteRenderer::Draw(
 	const glm::vec2& position,
 	const glm::vec2& size,
 	const float rotate,
-	const glm::vec3& color
+	const glm::vec4& color
 ) const
 {
 	shader->Bind();
@@ -46,7 +48,7 @@ void SpriteRenderer::Draw(
 	model = glm::scale(model, glm::vec3(size, 1.0f));
 
 	shader->SetMat4("uModel", glm::value_ptr(model));
-	shader->SetVec3("uSpriteColor", glm::value_ptr(color));
+	shader->SetVec4("uSpriteColor", glm::value_ptr(color));
 
 	glActiveTexture(GL_TEXTURE0);
 	texture->Bind();
@@ -81,6 +83,18 @@ void SpriteRenderer::DrawGameLevel(ShaderProgram* shader, const GameLevel* level
 		if (!bricks[i].IsDestroyed())
 		{
 			DrawGameObject(shader, &bricks[i]);
+		}
+	}
+}
+
+void SpriteRenderer::DrawParticles(ShaderProgram* shader, const ParticleEmitter* emitter) const
+{
+	const Particle* particles = emitter->GetParticles();
+	for (unsigned int i = 0; i < emitter->GetNumParticles(); i++)
+	{
+		if (particles[i].IsAlive())
+		{
+			DrawGameObject(shader, &particles[i]);
 		}
 	}
 }

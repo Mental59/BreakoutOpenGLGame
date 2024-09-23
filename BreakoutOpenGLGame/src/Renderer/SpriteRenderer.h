@@ -6,6 +6,7 @@ class ShaderProgram;
 class Texture2D;
 class GameObject;
 class GameLevel;
+class ParticleEmitter;
 
 class SpriteRenderer
 {
@@ -21,7 +22,7 @@ public:
 		const glm::vec2& position,
 		const glm::vec2& size,
 		const float rotate,
-		const glm::vec3& color
+		const glm::vec4& color
 	) const;
 
 	void DrawGameObject(
@@ -30,6 +31,7 @@ public:
 	) const;
 
 	void DrawGameLevel(ShaderProgram* shader, const GameLevel* level) const;
+	void DrawParticles(ShaderProgram* shader, const ParticleEmitter* emitter) const;
 
 private:
 	void InitRenderData();

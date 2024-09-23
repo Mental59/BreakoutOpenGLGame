@@ -4,9 +4,9 @@ in vec2 vTexCoords;
 out vec4 oColor;
 
 uniform sampler2D uImage;
-uniform vec3 uSpriteColor;
+uniform vec4 uSpriteColor;
 
 void main()
 {
-	oColor = vec4(uSpriteColor, 1.0) * texture(uImage, vTexCoords);
+	oColor = uSpriteColor * texture(uImage, vTexCoords);
 }

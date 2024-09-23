@@ -21,6 +21,7 @@ public:
 	void SetInt(const std::string& name, int value);
 	void SetFloat(const std::string& name, float value);
 	void SetVec4(const std::string& name, float v0, float v1, float v2, float v3);
+	void SetVec4(const std::string& name, const float* data);
 	void SetMat4(const std::string& name, const float* data);
 	void SetVec3(const std::string& name, float v0, float v1, float v2);
 	void SetVec3(const std::string& name, const float* data);

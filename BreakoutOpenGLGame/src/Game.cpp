@@ -11,11 +11,13 @@
 #include "Game/BallGameObject.h"
 
 static unsigned int SPRITE_SHADER_INDEX;
+static unsigned int PARTICLE_SHADER_INDEX;
 static unsigned int TEXTURE_AWESOMEFACE_INDEX;
 static unsigned int TEXTURE_BLOCK_INDEX;
 static unsigned int TEXTURE_BLOCK_SOLID_INDEX;
 static unsigned int TEXTURE_BACKGROUND_INDEX;
 static unsigned int TEXTURE_PADDLE_INDEX;
+static unsigned int TEXTURE_PARTICLE_INDEX;
 
 Game::Game(int width, int height) :
 	mWidth(width),
@@ -81,8 +83,8 @@ void Game::ProcessInput(float dt)
 void Game::Update(float dt)
 {
 	mBall.Move(dt, static_cast<float>(mWidth));
+	mBall.Update(dt);
 	CheckCollisions();
-
 	if (mBall.GetPosition().y >= mHeight)
 	{
 		ResetCurrentLevel();
@@ -98,9 +100,17 @@ void Game::Render()
 		Texture2D* backgroundTexture = mResourceManager.GetTexture2D(TEXTURE_BACKGROUND_INDEX);
 		GameLevel* currentLevel = mResourceManager.GetLevel(mLevelIndex);
 
-		mSpriteRenderer.Draw(spriteShader, backgroundTexture, glm::vec2(0.0f), glm::vec2(mWidth, mHeight), 0.0f, glm::vec3(1.0f));
+		mSpriteRenderer.Draw(spriteShader, backgroundTexture, glm::vec2(0.0f), glm::vec2(mWidth, mHeight), 0.0f, glm::vec4(1.0f));
 		mSpriteRenderer.DrawGameLevel(spriteShader, currentLevel);
 		mSpriteRenderer.DrawGameObject(spriteShader, &mPlayer);
+
+		//if (mBall.IsActive())
+		//{
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+		mSpriteRenderer.DrawParticles(spriteShader, mBall.GetParticleEmitter());
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		//}
+
 		mSpriteRenderer.DrawGameObject(spriteShader, &mBall);
 	}
 }
@@ -180,6 +190,9 @@ void Game::InitResources()
 	loadShaderOptions.VertexShaderPath = "resources/shaders/sprite.vert";
 	loadShaderOptions.FragmentShaderPath = "resources/shaders/sprite.frag";
 	SPRITE_SHADER_INDEX = mResourceManager.LoadShader(loadShaderOptions);
+	loadShaderOptions.VertexShaderPath = "resources/shaders/particle.vert";
+	loadShaderOptions.FragmentShaderPath = "resources/shaders/particle.frag";
+	PARTICLE_SHADER_INDEX = mResourceManager.LoadShader(loadShaderOptions);
 
 	ResourceManager::LoadTextureOptions loadTextureOptions;
 	loadTextureOptions.Path = "resources/textures/awesomeface.png";
@@ -192,6 +205,8 @@ void Game::InitResources()
 	TEXTURE_BACKGROUND_INDEX = mResourceManager.LoadTexture2D(loadTextureOptions);
 	loadTextureOptions.Path = "resources/textures/paddle.png";
 	TEXTURE_PADDLE_INDEX = mResourceManager.LoadTexture2D(loadTextureOptions);
+	loadTextureOptions.Path = "resources/textures/particle.png";
+	TEXTURE_PARTICLE_INDEX = mResourceManager.LoadTexture2D(loadTextureOptions);
 
 	auto projectionMat = glm::ortho(0.0f, static_cast<float>(mWidth), static_cast<float>(mHeight), 0.0f, -1.0f, 1.0f);
 	ShaderProgram* spriteShader = mResourceManager.GetShader(SPRITE_SHADER_INDEX);
@@ -245,6 +260,7 @@ void Game::InitBall()
 	options.Sprite = mResourceManager.GetTexture2D(TEXTURE_AWESOMEFACE_INDEX);
 	options.Velocity = glm::vec2(100.0f, -350.0f);
 	options.Radius = radius;
+	options.ParticleTexture = mResourceManager.GetTexture2D(TEXTURE_PARTICLE_INDEX);
 
 	mBall.Init(options);
 }

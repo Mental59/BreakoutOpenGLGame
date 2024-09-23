@@ -90,6 +90,11 @@ void ShaderProgram::SetVec4(const std::string& name, float v0, float v1, float v
 	glUniform4f(GetUniformLocation(name), v0, v1, v2, v3);
 }
 
+void ShaderProgram::SetVec4(const std::string& name, const float* data)
+{
+	glUniform4fv(GetUniformLocation(name), 1, data);
+}
+
 void ShaderProgram::SetMat4(const std::string& name, const float* data)
 {
 	glUniformMatrix4fv(GetUniformLocation(name), 1, GL_FALSE, data);

@@ -46,23 +46,23 @@ void GameLevel::Init(const InitOptions& options)
 			{
 				initOptions.IsSolid = true;
 				initOptions.Sprite = options.solidBlockTexture;
-				initOptions.Color = glm::vec3(0.8f, 0.8f, 0.7f);
+				initOptions.Color = glm::vec4(0.8f, 0.8f, 0.7f, 1.0f);
 			}
 			else if (tileCode == 2)
 			{
-				initOptions.Color = glm::vec3(0.2f, 0.6f, 1.0f);
+				initOptions.Color = glm::vec4(0.2f, 0.6f, 1.0f, 1.0f);
 			}
 			else if (tileCode == 3)
 			{
-				initOptions.Color = glm::vec3(0.0f, 0.7f, 0.0f);
+				initOptions.Color = glm::vec4(0.0f, 0.7f, 0.0f, 1.0f);
 			}
 			else if (tileCode == 4)
 			{
-				initOptions.Color = glm::vec3(0.8f, 0.8f, 0.4f);
+				initOptions.Color = glm::vec4(0.8f, 0.8f, 0.4f, 1.0f);
 			}
 			else if (tileCode == 5)
 			{
-				initOptions.Color = glm::vec3(1.0f, 0.5f, 0.0f);
+				initOptions.Color = glm::vec4(1.0f, 0.5f, 0.0f, 1.0f);
 			}
 
 			mBricks[blockIndex++].Init(initOptions);
