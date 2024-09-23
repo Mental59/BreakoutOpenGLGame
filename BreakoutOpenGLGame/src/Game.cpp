@@ -11,7 +11,6 @@
 #include "Game/BallGameObject.h"
 
 static unsigned int SPRITE_SHADER_INDEX;
-static unsigned int PARTICLE_SHADER_INDEX;
 static unsigned int TEXTURE_AWESOMEFACE_INDEX;
 static unsigned int TEXTURE_BLOCK_INDEX;
 static unsigned int TEXTURE_BLOCK_SOLID_INDEX;
@@ -190,9 +189,6 @@ void Game::InitResources()
 	loadShaderOptions.VertexShaderPath = "resources/shaders/sprite.vert";
 	loadShaderOptions.FragmentShaderPath = "resources/shaders/sprite.frag";
 	SPRITE_SHADER_INDEX = mResourceManager.LoadShader(loadShaderOptions);
-	loadShaderOptions.VertexShaderPath = "resources/shaders/particle.vert";
-	loadShaderOptions.FragmentShaderPath = "resources/shaders/particle.frag";
-	PARTICLE_SHADER_INDEX = mResourceManager.LoadShader(loadShaderOptions);
 
 	ResourceManager::LoadTextureOptions loadTextureOptions;
 	loadTextureOptions.Path = "resources/textures/awesomeface.png";

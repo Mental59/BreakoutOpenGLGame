@@ -105,7 +105,5 @@
   <ItemGroup>
     <None Include="resources\shaders\sprite.vert" />
     <None Include="resources\shaders\sprite.frag" />
-    <None Include="resources\shaders\particle.vert" />
-    <None Include="resources\shaders\particle.frag" />
   </ItemGroup>
 </Project>

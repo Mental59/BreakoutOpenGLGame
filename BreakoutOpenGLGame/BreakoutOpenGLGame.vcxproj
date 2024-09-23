@@ -179,8 +179,6 @@
     <ClInclude Include="src\Utils\Vector.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="resources\shaders\particle.frag" />
-    <None Include="resources\shaders\particle.vert" />
     <None Include="resources\shaders\sprite.vert" />
     <None Include="resources\shaders\sprite.frag" />
   </ItemGroup>
