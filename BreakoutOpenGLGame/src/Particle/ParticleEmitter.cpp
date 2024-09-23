@@ -55,13 +55,12 @@ void ParticleEmitter::Update(float dt, glm::vec2 offset)
 
 void ParticleEmitter::SpawnParticle(Particle* particle, glm::vec2 offset)
 {
-	std::uniform_real_distribution<> dist1(0.0f, 5.0f);
+	std::uniform_real_distribution<> dist1(0.0f, 6.0f);
 	std::uniform_real_distribution<> dist2(0.0f, 1.5f);
 
-	float random = dist1(mRNG);
 	float rColor = dist2(mRNG);
 
-	particle->SetPosition(mPosition + offset + random);
+	particle->SetPosition(mPosition + offset + glm::vec2(dist1(mRNG), dist1(mRNG)));
 	particle->SetColor(glm::vec4(rColor, rColor, rColor, 1.0f));
 	particle->RenewLifetime();
 	particle->SetVelocity(mVelocity * 0.1f);

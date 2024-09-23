@@ -14,7 +14,7 @@ void BallGameObject::Init(const BallInitOptions& options)
 	particleEmitterInitOptions.Position = options.Position;
 	particleEmitterInitOptions.Size = options.Size / 2.0f;
 	particleEmitterInitOptions.MinParticleLifetimeSeconds = 0.1f;
-	particleEmitterInitOptions.MaxParticleLifetimeSeconds = 0.9f;
+	particleEmitterInitOptions.MaxParticleLifetimeSeconds = 0.5f;
 	particleEmitterInitOptions.NumNewParticlesEachUpdate = 2;
 	particleEmitterInitOptions.NumParticles = 100;
 	particleEmitterInitOptions.Sprite = options.ParticleTexture;
