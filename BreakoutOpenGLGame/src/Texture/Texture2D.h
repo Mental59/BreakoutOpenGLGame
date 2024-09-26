@@ -10,6 +10,7 @@ public:
 	void Init(int width, int height, int numChannels, unsigned char* data);
 	void Bind() const;
 	void Unbind() const;
+	void Resize(int width, int height, unsigned char* data);
 
 	inline void SetImageFormat(int imageFormat) { mImageFormat = imageFormat; }
 	inline void SetInternalFormat(unsigned int internalFormat) { mInternalFormat = internalFormat; }

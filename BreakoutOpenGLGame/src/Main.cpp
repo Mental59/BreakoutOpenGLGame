@@ -3,8 +3,8 @@
 #include <glfw3.h>
 #include "Game.h"
 
-int WINDOW_WIDTH = 1280;
-int WINDOW_HEIGHT = 720;
+static constexpr int WINDOW_WIDTH = 1280;
+static constexpr int WINDOW_HEIGHT = 720;
 
 static void framebufferSizeCallback(GLFWwindow* window, int width, int height);
 static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mode);
@@ -78,9 +78,8 @@ int main()
 
 static void framebufferSizeCallback(GLFWwindow* window, int width, int height)
 {
-	WINDOW_WIDTH = width;
-	WINDOW_HEIGHT = height;
-	glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+	GAME.Resize(width, height);
+	glViewport(0, 0, width, height);
 }
 
 static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mode)

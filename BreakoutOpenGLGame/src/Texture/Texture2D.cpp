@@ -54,6 +54,13 @@ void Texture2D::Unbind() const
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
+void Texture2D::Resize(int width, int height, unsigned char* data)
+{
+	glBindTexture(GL_TEXTURE_2D, mID);
+	glTexImage2D(GL_TEXTURE_2D, 0, mInternalFormat, width, height, 0, mImageFormat, GL_UNSIGNED_BYTE, data);
+	glBindTexture(GL_TEXTURE_2D, 0);
+}
+
 void Texture2D::Init(int width, int height, int numChannels, unsigned char* data)
 {
 	mWidth = width;

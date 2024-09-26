@@ -30,13 +30,13 @@ public:
 	void Update(float dt);
 	void Render();
 
-	void CheckCollisions();
-
+	void Resize(int width, int height);
 private:
 	void InitResources();
 	void InitPlayer();
 	void InitBall();
 
+	void CheckCollisions();
 	void ResetCurrentLevel();
 
 	ResourceManager mResourceManager;

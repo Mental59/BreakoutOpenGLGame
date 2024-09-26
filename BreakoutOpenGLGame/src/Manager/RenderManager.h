@@ -13,6 +13,7 @@ public:
 	void Init(ShaderProgram* postProcessingShader, int width, int height);
 	void Begin();
 	void End(float time);
+	void Resize(int width, int height);
 
 	inline void SetConfuse(bool value) { mConfuse = value; }
 	inline void SetShake(bool value) { mShake = value; }

@@ -121,9 +121,9 @@ void ResourceManager::InitLevel(GameLevel* level, const LoadLevelOptions& option
 
 	GameLevel::InitOptions gameLevelInitOptions;
 	gameLevelInitOptions.NumRows = nRows;
-	gameLevelInitOptions.NumColums = nColumns;
+	gameLevelInitOptions.NumColumns = nColumns;
 	gameLevelInitOptions.LevelWidth = options.LevelWidth;
-	gameLevelInitOptions.LevelHeight = options.LevelHeight / 2.0f;
+	gameLevelInitOptions.LevelHeight = options.LevelHeight;
 	gameLevelInitOptions.TileData = tileData.get();
 	gameLevelInitOptions.blockTexture = options.blockTexture;
 	gameLevelInitOptions.solidBlockTexture = options.solidBlockTexture;

@@ -6,13 +6,20 @@
 GameLevel::GameLevel(GameLevel&& other) noexcept
 {
 	mNumBricks = other.mNumBricks;
+	mNumRows = other.mNumRows;
+	mNumColumns = other.mNumColumns;
+	mUnitWidth = other.mUnitWidth;
+	mUnitHeight = other.mUnitHeight;
 	mBricks = std::move(other.mBricks);
 }
 
 void GameLevel::Init(const InitOptions& options)
 {
+	mNumRows = options.NumRows;
+	mNumColumns = options.NumColumns;
+
 	unsigned int numBlocks = 0;
-	for (unsigned int i = 0; i < options.NumRows * options.NumColums; i++)
+	for (unsigned int i = 0; i < options.NumRows * options.NumColumns; i++)
 	{
 		numBlocks += options.TileData[i] > 0;
 	}
@@ -21,15 +28,17 @@ void GameLevel::Init(const InitOptions& options)
 	mBricks = std::make_unique<BrickGameObject[]>(numBlocks);
 	mNumBricks = numBlocks;
 
-	float unitWidth = static_cast<float>(options.LevelWidth) / static_cast<float>(options.NumColums);
-	float unitHeight = static_cast<float>(options.LevelHeight) / static_cast<float>(options.NumRows);
+	float unitWidth = GetUnitWidth(options.LevelWidth);
+	float unitHeight = GetUnitHeight(options.LevelHeight);
+	mUnitWidth = unitWidth;
+	mUnitHeight = unitHeight;
 
 	unsigned int blockIndex = 0;
 	for (unsigned int y = 0; y < options.NumRows; y++)
 	{
-		for (unsigned int x = 0; x < options.NumColums; x++)
+		for (unsigned int x = 0; x < options.NumColumns; x++)
 		{
-			unsigned int index = options.NumColums * y + x;
+			unsigned int index = options.NumColumns * y + x;
 			unsigned int tileCode = options.TileData[index];
 
 			if (tileCode <= 0)
@@ -88,4 +97,34 @@ void GameLevel::Reset()
 	{
 		mBricks[i].Reset();
 	}
+}
+
+void GameLevel::Resize(unsigned int levelWidth, unsigned int levelHeight)
+{
+	float unitWidth = GetUnitWidth(levelWidth);
+	float unitHeight = GetUnitHeight(levelHeight);
+
+	for (unsigned int i = 0; i < mNumBricks; i++)
+	{
+		glm::vec2 position = mBricks[i].GetPosition();
+
+		position.x *= unitWidth / mUnitWidth;
+		position.y *= unitHeight / mUnitHeight;
+
+		mBricks[i].SetPosition(position);
+		mBricks[i].SetSize(glm::vec2(unitWidth, unitHeight));
+	}
+
+	mUnitWidth = unitWidth;
+	mUnitHeight = unitHeight;
+}
+
+float GameLevel::GetUnitWidth(unsigned int levelWidth) const
+{
+	return static_cast<float>(levelWidth) / static_cast<float>(mNumColumns);
+}
+
+float GameLevel::GetUnitHeight(unsigned int levelHeight) const
+{
+	return static_cast<float>(levelHeight) / static_cast<float>(mNumRows);
 }

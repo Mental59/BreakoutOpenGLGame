@@ -128,6 +128,11 @@ void Game::Render()
 	}
 }
 
+void Game::Resize(int width, int height)
+{
+	mRenderManager.Resize(width, height);
+}
+
 void Game::CheckCollisions()
 {
 	if (!mBall.IsActive())
@@ -236,7 +241,7 @@ void Game::InitResources()
 
 	ResourceManager::LoadLevelOptions loadLevelOptions;
 	loadLevelOptions.LevelWidth = mWidth;
-	loadLevelOptions.LevelHeight = mHeight;
+	loadLevelOptions.LevelHeight = mHeight / 2.0f;
 	loadLevelOptions.blockTexture = mResourceManager.GetTexture2D(TEXTURE_BLOCK_INDEX);
 	loadLevelOptions.solidBlockTexture = mResourceManager.GetTexture2D(TEXTURE_BLOCK_SOLID_INDEX);
 	loadLevelOptions.Path = "resources/levels/beginner.lvl";

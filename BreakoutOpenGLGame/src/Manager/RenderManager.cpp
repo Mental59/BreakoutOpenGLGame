@@ -43,6 +43,18 @@ void RenderManager::End(float time)
 	DoPostProcessing(time);
 }
 
+void RenderManager::Resize(int width, int height)
+{
+	mWidth = width;
+	mHeight = height;
+
+	glBindRenderbuffer(GL_RENDERBUFFER, mRBO);
+	glRenderbufferStorageMultisample(GL_RENDERBUFFER, 4, GL_RGB8, width, height);
+	glBindRenderbuffer(GL_RENDERBUFFER, 0);
+
+	mTexture.Resize(width, height, nullptr);
+}
+
 void RenderManager::InitRenderData()
 {
 	float vertices[] = {
