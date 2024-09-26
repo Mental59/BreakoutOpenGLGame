@@ -57,6 +57,9 @@
     <ClCompile Include="src\Particle\Particle.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Manager\RenderManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\External\stb_image.h">
@@ -101,9 +104,14 @@
     <ClInclude Include="src\Particle\Particle.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\Manager\RenderManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="resources\shaders\sprite.vert" />
     <None Include="resources\shaders\sprite.frag" />
+    <None Include="resources\shaders\postprocessing.vert" />
+    <None Include="resources\shaders\postprocessing.frag" />
   </ItemGroup>
 </Project>

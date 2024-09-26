@@ -11,6 +11,7 @@
 #include "Game/BallGameObject.h"
 
 static unsigned int SPRITE_SHADER_INDEX;
+static unsigned int POST_PROCESSING_SHADER_INDEX;
 static unsigned int TEXTURE_AWESOMEFACE_INDEX;
 static unsigned int TEXTURE_BLOCK_INDEX;
 static unsigned int TEXTURE_BLOCK_SOLID_INDEX;
@@ -25,7 +26,9 @@ Game::Game(int width, int height) :
 	mState(GAME_ACTIVE),
 	mResourceManager(),
 	mSpriteRenderer(),
-	mLevelIndex(1)
+	mLevelIndex(1),
+	mShakeTime(0.0f),
+	mPlayer()
 {
 
 }
@@ -44,6 +47,7 @@ void Game::Init()
 	InitResources();
 	InitPlayer();
 	InitBall();
+	mRenderManager.Init(mResourceManager.GetShader(POST_PROCESSING_SHADER_INDEX), mWidth, mHeight);
 }
 
 void Game::ProcessInput(float dt)
@@ -88,6 +92,15 @@ void Game::Update(float dt)
 	{
 		ResetCurrentLevel();
 	}
+
+	if (mShakeTime <= 0.0f)
+	{
+		mRenderManager.SetShake(false);
+	}
+	else
+	{
+		mShakeTime -= dt;
+	}
 }
 
 void Game::Render()
@@ -99,18 +112,19 @@ void Game::Render()
 		Texture2D* backgroundTexture = mResourceManager.GetTexture2D(TEXTURE_BACKGROUND_INDEX);
 		GameLevel* currentLevel = mResourceManager.GetLevel(mLevelIndex);
 
+		mRenderManager.Begin();
+
 		mSpriteRenderer.Draw(spriteShader, backgroundTexture, glm::vec2(0.0f), glm::vec2(mWidth, mHeight), 0.0f, glm::vec4(1.0f));
 		mSpriteRenderer.DrawGameLevel(spriteShader, currentLevel);
 		mSpriteRenderer.DrawGameObject(spriteShader, &mPlayer);
 
-		//if (mBall.IsActive())
-		//{
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 		mSpriteRenderer.DrawParticles(spriteShader, mBall.GetParticleEmitter());
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		//}
 
 		mSpriteRenderer.DrawGameObject(spriteShader, &mBall);
+
+		mRenderManager.End(glfwGetTime());
 	}
 }
 
@@ -162,6 +176,12 @@ void Game::CheckCollisions()
 
 			mBall.SetPosition(ballPosition);
 			mBall.SetVelocity(ballVelosity);
+
+			if (bricks[i].IsSolid())
+			{
+				mShakeTime = 0.075f;
+				mRenderManager.SetShake(true);
+			}
 		}
 	}
 
@@ -189,6 +209,10 @@ void Game::InitResources()
 	loadShaderOptions.VertexShaderPath = "resources/shaders/sprite.vert";
 	loadShaderOptions.FragmentShaderPath = "resources/shaders/sprite.frag";
 	SPRITE_SHADER_INDEX = mResourceManager.LoadShader(loadShaderOptions);
+
+	loadShaderOptions.VertexShaderPath = "resources/shaders/postprocessing.vert";
+	loadShaderOptions.FragmentShaderPath = "resources/shaders/postprocessing.frag";
+	POST_PROCESSING_SHADER_INDEX = mResourceManager.LoadShader(loadShaderOptions);
 
 	ResourceManager::LoadTextureOptions loadTextureOptions;
 	loadTextureOptions.Path = "resources/textures/awesomeface.png";

@@ -15,6 +15,8 @@ public:
 	inline void SetInternalFormat(unsigned int internalFormat) { mInternalFormat = internalFormat; }
 	inline void SetWrap(int wrapS, int wrapT) { mWrapS = wrapS; mWrapT = wrapT; }
 	inline void SetFilter(int minFilter, int magFilter) { mMinFilter = minFilter; mMagFilter = magFilter; }
+
+	inline unsigned int GetId() const { return mID; }
 private:
 	int mWidth, mHeight, mNumChannels;
 

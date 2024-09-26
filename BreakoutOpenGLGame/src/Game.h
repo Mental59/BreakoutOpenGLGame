@@ -4,6 +4,7 @@
 #include "Renderer/SpriteRenderer.h"
 #include "Game/GameObject.h"
 #include "Game/BallGameObject.h"
+#include "Manager/RenderManager.h"
 
 static int constexpr NUM_KEYS = 1024;
 
@@ -39,6 +40,8 @@ private:
 	void ResetCurrentLevel();
 
 	ResourceManager mResourceManager;
+	RenderManager mRenderManager;
+
 	SpriteRenderer mSpriteRenderer;
 	GameObject mPlayer;
 	BallGameObject mBall;
@@ -46,6 +49,7 @@ private:
 	int mWidth, mHeight;
 	bool mKeys[NUM_KEYS];
 	unsigned int mLevelIndex;
+	float mShakeTime;
 
 	GameState mState;
 };

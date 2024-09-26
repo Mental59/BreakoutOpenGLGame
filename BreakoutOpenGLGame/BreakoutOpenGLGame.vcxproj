@@ -147,6 +147,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Manager\RenderManager.cpp" />
     <ClCompile Include="src\Particle\Particle.cpp" />
     <ClCompile Include="src\Particle\ParticleEmitter.cpp" />
     <ClCompile Include="src\Game\BallGameObject.cpp" />
@@ -163,6 +164,7 @@
     <ClCompile Include="src\Texture\Texture2D.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Manager\RenderManager.h" />
     <ClInclude Include="src\Particle\Particle.h" />
     <ClInclude Include="src\Particle\ParticleEmitter.h" />
     <ClInclude Include="src\Game\BallGameObject.h" />
@@ -179,6 +181,8 @@
     <ClInclude Include="src\Utils\Vector.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="resources\shaders\postprocessing.frag" />
+    <None Include="resources\shaders\postprocessing.vert" />
     <None Include="resources\shaders\sprite.vert" />
     <None Include="resources\shaders\sprite.frag" />
   </ItemGroup>
