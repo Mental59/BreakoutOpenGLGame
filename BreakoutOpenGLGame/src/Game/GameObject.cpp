@@ -24,10 +24,10 @@ void GameObject::Init(const GameObjectInitOptions& options)
 bool GameObject::Collides(const GameObject& gameObject) const
 {
 	bool collisionX = mPosition.x + mSize.x >= gameObject.mPosition.x &&
-		gameObject.mPosition.x + gameObject.mSize.x < mPosition.x;
+		gameObject.mPosition.x + gameObject.mSize.x >= mPosition.x;
 
 	bool collisionY = mPosition.y + mSize.y >= gameObject.mPosition.y &&
-		gameObject.mPosition.y + gameObject.mSize.y > mPosition.y;
+		gameObject.mPosition.y + gameObject.mSize.y >= mPosition.y;
 
 	return collisionX && collisionY;
 }
