@@ -91,6 +91,18 @@ void PowerUpSpawner::SpawnAt(glm::vec2 position)
 	}
 }
 
+void PowerUpSpawner::RemoveUnusedPowerups()
+{
+	mSpawnedPowerups.erase(
+		std::remove_if(
+			mSpawnedPowerups.begin(),
+			mSpawnedPowerups.end(),
+			[](const PowerUp& powerUp) { return powerUp.IsDestroyed() && !powerUp.IsActivated(); }
+		),
+		mSpawnedPowerups.end()
+	);
+}
+
 bool PowerUpSpawner::ShouldSpawn(float chance)
 {
 	std::uniform_real_distribution<float> dist(0.0f, 1.0f);

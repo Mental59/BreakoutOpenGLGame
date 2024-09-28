@@ -21,6 +21,8 @@ public:
 	GameObject() = default;
 	GameObject(GameObject&& other) noexcept;
 
+	GameObject& operator=(const GameObject& other) = default;
+
 	void Init(const GameObjectInitOptions& options);
 
 	const inline glm::vec2& GetPosition() const { return mPosition; }

@@ -1,7 +1,6 @@
 #pragma once
 
 #include "GameObject.h"
-#include <iostream>
 
 class PowerUp : public GameObject
 {
@@ -25,10 +24,13 @@ public:
 	PowerUp() = default;
 	PowerUp(PowerUp&& other) noexcept;
 
+	PowerUp& operator=(const PowerUp& other) = default;
+
 	void Init(const PowerUpInitOptions& options);
 
 	inline bool IsDestroyed() const { return mDestroyed; }
 	inline bool IsActivated() const { return mActivated; }
+	inline bool IsUnused() const { mDestroyed && !mActivated; }
 	inline PowerUpType GetType() const { return mType; }
 	inline float GetDuration() const { return mDuration; }
 

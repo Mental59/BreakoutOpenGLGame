@@ -112,99 +112,7 @@ void Game::Update(float dt)
 		mShakeTime -= dt;
 	}
 
-	bool shouldDeactivateSticky = false;
-	bool shouldDeactivatePassThrough = false;
-	bool shouldDeactivateConfuse = false;
-	bool shouldDeactivateChaos = false;
-
-	bool hasActivatedSticky = false;
-	bool hasActivatedPassThrough = false;
-	bool hasActivatedConfuse = false;
-	bool hasActivatedChaos = false;
-
-	for (PowerUp& powerUp : mPowerUpSpawner.GetSpawnedPowerUps())
-	{
-		if (powerUp.IsDestroyed() && !powerUp.IsActivated())
-		{
-			continue;
-		}
-
-		powerUp.SetPosition(powerUp.GetPosition() + powerUp.GetVelocity() * dt);
-		if (powerUp.IsActivated())
-		{
-			bool isActivated = true;
-			if (powerUp.GetDuration() <= 0.0f)
-			{
-				powerUp.Deactivate();
-				isActivated = false;
-			}
-
-			switch (powerUp.GetType())
-			{
-			case PowerUp::PowerUpType::Sticky:
-				if (isActivated)
-				{
-					hasActivatedSticky = true;
-				}
-				else
-				{
-					shouldDeactivateSticky = true;
-				}
-				break;
-			case PowerUp::PowerUpType::PassThrough:
-				if (isActivated)
-				{
-					hasActivatedPassThrough = true;
-				}
-				else
-				{
-					shouldDeactivatePassThrough = true;
-				}
-				break;
-			case PowerUp::PowerUpType::Confuse:
-				if (isActivated)
-				{
-					hasActivatedConfuse = true;
-				}
-				else
-				{
-					shouldDeactivateConfuse = true;
-				}
-				break;
-			case PowerUp::PowerUpType::Chaos:
-				if (isActivated)
-				{
-					hasActivatedChaos = true;
-				}
-				else
-				{
-					shouldDeactivateChaos = true;
-				}
-				break;
-			}
-
-			powerUp.DecreaseDuration(dt);
-		}
-	}
-
-	if (shouldDeactivateSticky && !hasActivatedSticky)
-	{
-		mBall.SetSticky(false);
-		mPlayer.SetColor(glm::vec4(1.0f));
-	}
-	if (shouldDeactivatePassThrough && !hasActivatedPassThrough)
-	{
-		mBall.SetPassThrough(false);
-		mBall.SetColor(glm::vec4(1.0f));
-	}
-	if (shouldDeactivateConfuse && !hasActivatedConfuse)
-	{
-		mRenderManager.SetConfuse(false);
-	}
-	if (shouldDeactivateChaos && !hasActivatedChaos)
-	{
-		mRenderManager.SetChaos(false);
-	}
+	UpdatePowerUps(dt);
 }
 
 void Game::Render()
@@ -302,8 +210,10 @@ void Game::CheckCollisions()
 				mShakeTime = 0.075f;
 				mRenderManager.SetShake(true);
 			}
-
-			mPowerUpSpawner.SpawnAt(bricks[i].GetPosition());
+			else
+			{
+				mPowerUpSpawner.SpawnAt(bricks[i].GetPosition());
+			}
 		}
 	}
 
@@ -487,5 +397,105 @@ void Game::ActivatePowerUp(const PowerUp& powerUp)
 	case PowerUp::PowerUpType::Chaos:
 		mRenderManager.SetChaos(true);
 		break;
+	}
+}
+
+void Game::UpdatePowerUps(float dt)
+{
+	mPowerUpSpawner.RemoveUnusedPowerups();
+
+	bool shouldDeactivateSticky = false;
+	bool shouldDeactivatePassThrough = false;
+	bool shouldDeactivateConfuse = false;
+	bool shouldDeactivateChaos = false;
+
+	bool hasActivatedSticky = false;
+	bool hasActivatedPassThrough = false;
+	bool hasActivatedConfuse = false;
+	bool hasActivatedChaos = false;
+
+	std::vector<PowerUp>& powerUps = mPowerUpSpawner.GetSpawnedPowerUps();
+	for (PowerUp& powerUp : powerUps)
+	{
+		if (powerUp.IsDestroyed() && !powerUp.IsActivated())
+		{
+			continue;
+		}
+
+		powerUp.SetPosition(powerUp.GetPosition() + powerUp.GetVelocity() * dt);
+		if (powerUp.IsActivated())
+		{
+			bool isActivated = true;
+			if (powerUp.GetDuration() <= 0.0f)
+			{
+				powerUp.Deactivate();
+				isActivated = false;
+			}
+
+			switch (powerUp.GetType())
+			{
+			case PowerUp::PowerUpType::Sticky:
+				if (isActivated)
+				{
+					hasActivatedSticky = true;
+				}
+				else
+				{
+					shouldDeactivateSticky = true;
+				}
+				break;
+			case PowerUp::PowerUpType::PassThrough:
+				if (isActivated)
+				{
+					hasActivatedPassThrough = true;
+				}
+				else
+				{
+					shouldDeactivatePassThrough = true;
+				}
+				break;
+			case PowerUp::PowerUpType::Confuse:
+				if (isActivated)
+				{
+					hasActivatedConfuse = true;
+				}
+				else
+				{
+					shouldDeactivateConfuse = true;
+				}
+				break;
+			case PowerUp::PowerUpType::Chaos:
+				if (isActivated)
+				{
+					hasActivatedChaos = true;
+				}
+				else
+				{
+					shouldDeactivateChaos = true;
+				}
+				break;
+			}
+
+			powerUp.DecreaseDuration(dt);
+		}
+	}
+
+	if (shouldDeactivateSticky && !hasActivatedSticky)
+	{
+		mBall.SetSticky(false);
+		mPlayer.SetColor(glm::vec4(1.0f));
+	}
+	if (shouldDeactivatePassThrough && !hasActivatedPassThrough)
+	{
+		mBall.SetPassThrough(false);
+		mBall.SetColor(glm::vec4(1.0f));
+	}
+	if (shouldDeactivateConfuse && !hasActivatedConfuse)
+	{
+		mRenderManager.SetConfuse(false);
+	}
+	if (shouldDeactivateChaos && !hasActivatedChaos)
+	{
+		mRenderManager.SetChaos(false);
 	}
 }

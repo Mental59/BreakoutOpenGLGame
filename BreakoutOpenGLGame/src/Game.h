@@ -43,6 +43,7 @@ private:
 	void ResetCurrentLevel();
 
 	void ActivatePowerUp(const PowerUp& powerUp);
+	void UpdatePowerUps(float dt);
 
 	ResourceManager mResourceManager;
 	RenderManager mRenderManager;
