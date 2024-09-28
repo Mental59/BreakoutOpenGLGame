@@ -147,6 +147,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Game\PowerUpSpawner.cpp" />
+    <ClCompile Include="src\Game\PowerUp.cpp" />
     <ClCompile Include="src\Manager\RenderManager.cpp" />
     <ClCompile Include="src\Particle\Particle.cpp" />
     <ClCompile Include="src\Particle\ParticleEmitter.cpp" />
@@ -164,6 +166,8 @@
     <ClCompile Include="src\Texture\Texture2D.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Game\PowerUpSpawner.h" />
+    <ClInclude Include="src\Game\PowerUp.h" />
     <ClInclude Include="src\Manager\RenderManager.h" />
     <ClInclude Include="src\Particle\Particle.h" />
     <ClInclude Include="src\Particle\ParticleEmitter.h" />

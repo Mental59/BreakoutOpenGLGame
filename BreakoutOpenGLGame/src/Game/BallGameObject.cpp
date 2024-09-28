@@ -63,11 +63,11 @@ void BallGameObject::FollowPaddle(const float playerDisplacementX)
 	mPosition.x += playerDisplacementX;
 }
 
-BallGameObject::BallHitResult BallGameObject::Collides(const GameObject* gameObject) const
+BallGameObject::BallHitResult BallGameObject::Collides(const GameObject& gameObject) const
 {
 	// TODO: It doesn't check if the ball is inside of the brick
-	const glm::vec2 brickHalfSize = gameObject->GetSize() / 2.0f;
-	const glm::vec2 brickCenter = gameObject->GetPosition() + brickHalfSize;
+	const glm::vec2 brickHalfSize = gameObject.GetSize() / 2.0f;
+	const glm::vec2 brickCenter = gameObject.GetPosition() + brickHalfSize;
 
 	const glm::vec2 ballCenter = mPosition + mRadius;
 

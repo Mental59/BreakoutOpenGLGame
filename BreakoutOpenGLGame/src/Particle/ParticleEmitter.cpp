@@ -14,7 +14,7 @@ void ParticleEmitter::Init(const ParticleEmitterInitOptions& options)
 	std::random_device rd;
 	mRNG = std::mt19937(rd());
 
-	std::uniform_real_distribution<> dist(options.MinParticleLifetimeSeconds, options.MaxParticleLifetimeSeconds);
+	std::uniform_real_distribution<float> dist(options.MinParticleLifetimeSeconds, options.MaxParticleLifetimeSeconds);
 
 	Particle::ParticleInitOptions particleInitOptions;
 	particleInitOptions.Sprite = options.Sprite;

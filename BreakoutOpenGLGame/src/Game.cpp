@@ -9,6 +9,8 @@
 #include "Game/GameLevel.h"
 #include "Game/GameObject.h"
 #include "Game/BallGameObject.h"
+#include "Game/PowerUpSpawner.h"
+#include "Game/PowerUp.h"
 
 static unsigned int SPRITE_SHADER_INDEX;
 static unsigned int POST_PROCESSING_SHADER_INDEX;
@@ -18,6 +20,12 @@ static unsigned int TEXTURE_BLOCK_SOLID_INDEX;
 static unsigned int TEXTURE_BACKGROUND_INDEX;
 static unsigned int TEXTURE_PADDLE_INDEX;
 static unsigned int TEXTURE_PARTICLE_INDEX;
+static unsigned int TEXTURE_SPEED_POWERUP_INDEX;
+static unsigned int TEXTURE_STICKY_POWERUP_INDEX;
+static unsigned int TEXTURE_PASSTHROUGH_POWERUP_INDEX;
+static unsigned int TEXTURE_PADSIZEINCREASE_POWERUP_INDEX;
+static unsigned int TEXTURE_CONFUSE_POWERUP_INDEX;
+static unsigned int TEXTURE_CHAOS_POWERUP_INDEX;
 
 Game::Game(int width, int height) :
 	mWidth(width),
@@ -28,7 +36,8 @@ Game::Game(int width, int height) :
 	mSpriteRenderer(),
 	mLevelIndex(1),
 	mShakeTime(0.0f),
-	mPlayer()
+	mPlayer(),
+	mPowerUpSpawner()
 {
 
 }
@@ -48,6 +57,7 @@ void Game::Init()
 	InitPlayer();
 	InitBall();
 	mRenderManager.Init(mResourceManager.GetShader(POST_PROCESSING_SHADER_INDEX), mWidth, mHeight);
+	InitPowerUpSpawner();
 }
 
 void Game::ProcessInput(float dt)
@@ -101,6 +111,100 @@ void Game::Update(float dt)
 	{
 		mShakeTime -= dt;
 	}
+
+	bool shouldDeactivateSticky = false;
+	bool shouldDeactivatePassThrough = false;
+	bool shouldDeactivateConfuse = false;
+	bool shouldDeactivateChaos = false;
+
+	bool hasActivatedSticky = false;
+	bool hasActivatedPassThrough = false;
+	bool hasActivatedConfuse = false;
+	bool hasActivatedChaos = false;
+
+	for (PowerUp& powerUp : mPowerUpSpawner.GetSpawnedPowerUps())
+	{
+		if (powerUp.IsDestroyed() && !powerUp.IsActivated())
+		{
+			continue;
+		}
+
+		powerUp.SetPosition(powerUp.GetPosition() + powerUp.GetVelocity() * dt);
+		if (powerUp.IsActivated())
+		{
+			bool isActivated = true;
+			if (powerUp.GetDuration() <= 0.0f)
+			{
+				powerUp.Deactivate();
+				isActivated = false;
+			}
+
+			switch (powerUp.GetType())
+			{
+			case PowerUp::PowerUpType::Sticky:
+				if (isActivated)
+				{
+					hasActivatedSticky = true;
+				}
+				else
+				{
+					shouldDeactivateSticky = true;
+				}
+				break;
+			case PowerUp::PowerUpType::PassThrough:
+				if (isActivated)
+				{
+					hasActivatedPassThrough = true;
+				}
+				else
+				{
+					shouldDeactivatePassThrough = true;
+				}
+				break;
+			case PowerUp::PowerUpType::Confuse:
+				if (isActivated)
+				{
+					hasActivatedConfuse = true;
+				}
+				else
+				{
+					shouldDeactivateConfuse = true;
+				}
+				break;
+			case PowerUp::PowerUpType::Chaos:
+				if (isActivated)
+				{
+					hasActivatedChaos = true;
+				}
+				else
+				{
+					shouldDeactivateChaos = true;
+				}
+				break;
+			}
+
+			powerUp.DecreaseDuration(dt);
+		}
+	}
+
+	if (shouldDeactivateSticky && !hasActivatedSticky)
+	{
+		mBall.SetSticky(false);
+		mPlayer.SetColor(glm::vec4(1.0f));
+	}
+	if (shouldDeactivatePassThrough && !hasActivatedPassThrough)
+	{
+		mBall.SetPassThrough(false);
+		mBall.SetColor(glm::vec4(1.0f));
+	}
+	if (shouldDeactivateConfuse && !hasActivatedConfuse)
+	{
+		mRenderManager.SetConfuse(false);
+	}
+	if (shouldDeactivateChaos && !hasActivatedChaos)
+	{
+		mRenderManager.SetChaos(false);
+	}
 }
 
 void Game::Render()
@@ -117,6 +221,14 @@ void Game::Render()
 		mSpriteRenderer.Draw(spriteShader, backgroundTexture, glm::vec2(0.0f), glm::vec2(mWidth, mHeight), 0.0f, glm::vec4(1.0f));
 		mSpriteRenderer.DrawGameLevel(spriteShader, currentLevel);
 		mSpriteRenderer.DrawGameObject(spriteShader, &mPlayer);
+
+		for (PowerUp& powerUp : mPowerUpSpawner.GetSpawnedPowerUps())
+		{
+			if (!powerUp.IsDestroyed())
+			{
+				mSpriteRenderer.DrawGameObject(spriteShader, &powerUp);
+			}
+		}
 
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 		mSpriteRenderer.DrawParticles(spriteShader, mBall.GetParticleEmitter());
@@ -149,48 +261,53 @@ void Game::CheckCollisions()
 			continue;
 		}
 
-		BallGameObject::BallHitResult hitResult = mBall.Collides(bricks + i);
+		BallGameObject::BallHitResult hitResult = mBall.Collides(bricks[i]);
 
 		if (hitResult.Collided)
 		{
 			bricks[i].Destroy();
 
-			glm::vec2 penetrationDistance = mBall.GetRadius() - glm::abs(hitResult.HitPoint - mBall.GetCenter());
-			glm::vec2 ballPosition = mBall.GetPosition();
-			glm::vec2 ballVelosity = mBall.GetVelocity();
-
-			switch (hitResult.BrickSideDirection)
+			if (!mBall.IsPassingThrough() || bricks[i].IsSolid())
 			{
-			case VectorDirection::Up:
-				ballVelosity.y = -ballVelosity.y;
-				ballPosition.y -= penetrationDistance.y;
-				break;
-			case VectorDirection::Right:
-				ballVelosity.x = -ballVelosity.x;
-				ballPosition.x -= penetrationDistance.x;
-				break;
-			case VectorDirection::Down:
-				ballVelosity.y = -ballVelosity.y;
-				ballPosition.y += penetrationDistance.y;
-				break;
-			case VectorDirection::Left:
-				ballVelosity.x = -ballVelosity.x;
-				ballPosition.x += penetrationDistance.x;
-				break;
-			}
+				glm::vec2 penetrationDistance = mBall.GetRadius() - glm::abs(hitResult.HitPoint - mBall.GetCenter());
+				glm::vec2 ballPosition = mBall.GetPosition();
+				glm::vec2 ballVelosity = mBall.GetVelocity();
 
-			mBall.SetPosition(ballPosition);
-			mBall.SetVelocity(ballVelosity);
+				switch (hitResult.BrickSideDirection)
+				{
+				case VectorDirection::Up:
+					ballVelosity.y = -ballVelosity.y;
+					ballPosition.y -= penetrationDistance.y;
+					break;
+				case VectorDirection::Right:
+					ballVelosity.x = -ballVelosity.x;
+					ballPosition.x -= penetrationDistance.x;
+					break;
+				case VectorDirection::Down:
+					ballVelosity.y = -ballVelosity.y;
+					ballPosition.y += penetrationDistance.y;
+					break;
+				case VectorDirection::Left:
+					ballVelosity.x = -ballVelosity.x;
+					ballPosition.x += penetrationDistance.x;
+					break;
+				}
+
+				mBall.SetPosition(ballPosition);
+				mBall.SetVelocity(ballVelosity);
+			}
 
 			if (bricks[i].IsSolid())
 			{
 				mShakeTime = 0.075f;
 				mRenderManager.SetShake(true);
 			}
+
+			mPowerUpSpawner.SpawnAt(bricks[i].GetPosition());
 		}
 	}
 
-	BallGameObject::BallHitResult hitWithPaddle = mBall.Collides(&mPlayer);
+	BallGameObject::BallHitResult hitWithPaddle = mBall.Collides(mPlayer);
 	if (hitWithPaddle.Collided)
 	{
 		glm::vec2 ballCenter = mBall.GetCenter();
@@ -205,6 +322,30 @@ void Game::CheckCollisions()
 		newBallVelocity = glm::normalize(newBallVelocity) * glm::length(mBall.GetVelocity());
 
 		mBall.SetVelocity(newBallVelocity);
+
+		if (mBall.IsSticky())
+		{
+			mBall.Deactivate();
+		}
+	}
+
+	for (PowerUp& powerUp : mPowerUpSpawner.GetSpawnedPowerUps())
+	{
+		if (powerUp.IsDestroyed())
+		{
+			continue;
+		}
+
+		if (powerUp.GetPosition().y >= mHeight)
+		{
+			powerUp.Destroy();
+		}
+		else if (mPlayer.Collides(powerUp))
+		{
+			ActivatePowerUp(powerUp);
+			powerUp.Activate();
+			powerUp.Destroy();
+		}
 	}
 }
 
@@ -232,6 +373,18 @@ void Game::InitResources()
 	TEXTURE_PADDLE_INDEX = mResourceManager.LoadTexture2D(loadTextureOptions);
 	loadTextureOptions.Path = "resources/textures/particle.png";
 	TEXTURE_PARTICLE_INDEX = mResourceManager.LoadTexture2D(loadTextureOptions);
+	loadTextureOptions.Path = "resources/textures/powerup_chaos.png";
+	TEXTURE_CHAOS_POWERUP_INDEX = mResourceManager.LoadTexture2D(loadTextureOptions);
+	loadTextureOptions.Path = "resources/textures/powerup_increase.png";
+	TEXTURE_PADSIZEINCREASE_POWERUP_INDEX = mResourceManager.LoadTexture2D(loadTextureOptions);
+	loadTextureOptions.Path = "resources/textures/powerup_confuse.png";
+	TEXTURE_CONFUSE_POWERUP_INDEX = mResourceManager.LoadTexture2D(loadTextureOptions);
+	loadTextureOptions.Path = "resources/textures/powerup_passthrough.png";
+	TEXTURE_PASSTHROUGH_POWERUP_INDEX = mResourceManager.LoadTexture2D(loadTextureOptions);
+	loadTextureOptions.Path = "resources/textures/powerup_speed.png";
+	TEXTURE_SPEED_POWERUP_INDEX = mResourceManager.LoadTexture2D(loadTextureOptions);
+	loadTextureOptions.Path = "resources/textures/powerup_sticky.png";
+	TEXTURE_STICKY_POWERUP_INDEX = mResourceManager.LoadTexture2D(loadTextureOptions);
 
 	auto projectionMat = glm::ortho(0.0f, static_cast<float>(mWidth), static_cast<float>(mHeight), 0.0f, -1.0f, 1.0f);
 	ShaderProgram* spriteShader = mResourceManager.GetShader(SPRITE_SHADER_INDEX);
@@ -290,10 +443,49 @@ void Game::InitBall()
 	mBall.Init(options);
 }
 
+void Game::InitPowerUpSpawner()
+{
+	PowerUpSpawner::PowerUpSwawnerOptions initOptions;
+	initOptions.SpeedTexture = mResourceManager.GetTexture2D(TEXTURE_SPEED_POWERUP_INDEX);
+	initOptions.StickyTexture = mResourceManager.GetTexture2D(TEXTURE_STICKY_POWERUP_INDEX);
+	initOptions.PassThroughTexture = mResourceManager.GetTexture2D(TEXTURE_PASSTHROUGH_POWERUP_INDEX);
+	initOptions.PadSizeIncreaseTexture = mResourceManager.GetTexture2D(TEXTURE_PADSIZEINCREASE_POWERUP_INDEX);
+	initOptions.ConfuseTexture = mResourceManager.GetTexture2D(TEXTURE_CONFUSE_POWERUP_INDEX);
+	initOptions.ChaosTexture = mResourceManager.GetTexture2D(TEXTURE_CHAOS_POWERUP_INDEX);
+	mPowerUpSpawner.Init(initOptions);
+}
+
 void Game::ResetCurrentLevel()
 {
 	InitPlayer();
 	InitBall();
 
 	mResourceManager.GetLevel(mLevelIndex)->Reset();
+}
+
+void Game::ActivatePowerUp(const PowerUp& powerUp)
+{
+	switch (powerUp.GetType())
+	{
+	case PowerUp::PowerUpType::Speed:
+		mBall.SetVelocity(mBall.GetVelocity() * 1.2f);
+		break;
+	case PowerUp::PowerUpType::Sticky:
+		mBall.SetSticky(true);
+		mPlayer.SetColor(glm::vec4(1.0f, 0.5f, 1.0f, 1.0f));
+		break;
+	case PowerUp::PowerUpType::PassThrough:
+		mBall.SetPassThrough(true);
+		mBall.SetColor(glm::vec4(1.0f, 0.5f, 0.5f, 1.0f));
+		break;
+	case PowerUp::PowerUpType::PadSizeIncrease:
+		mPlayer.SetSize(mPlayer.GetSize() + glm::vec2(50.f, 0.0f));
+		break;
+	case PowerUp::PowerUpType::Confuse:
+		mRenderManager.SetConfuse(true);
+		break;
+	case PowerUp::PowerUpType::Chaos:
+		mRenderManager.SetChaos(true);
+		break;
+	}
 }

@@ -5,6 +5,8 @@
 #include "Game/GameObject.h"
 #include "Game/BallGameObject.h"
 #include "Manager/RenderManager.h"
+#include "Game/PowerUpSpawner.h"
+#include "Game/PowerUp.h"
 
 static int constexpr NUM_KEYS = 1024;
 
@@ -35,12 +37,17 @@ private:
 	void InitResources();
 	void InitPlayer();
 	void InitBall();
+	void InitPowerUpSpawner();
 
 	void CheckCollisions();
 	void ResetCurrentLevel();
 
+	void ActivatePowerUp(const PowerUp& powerUp);
+
 	ResourceManager mResourceManager;
 	RenderManager mRenderManager;
+
+	PowerUpSpawner mPowerUpSpawner;
 
 	SpriteRenderer mSpriteRenderer;
 	GameObject mPlayer;

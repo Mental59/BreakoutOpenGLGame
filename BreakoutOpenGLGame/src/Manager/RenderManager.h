@@ -15,9 +15,9 @@ public:
 	void End(float time);
 	void Resize(int width, int height);
 
-	inline void SetConfuse(bool value) { mConfuse = value; }
+	inline void SetConfuse(bool value) { mConfuse = !mChaos && value; }
 	inline void SetShake(bool value) { mShake = value; }
-	inline void SetChaos(bool value) { mChaos = value; }
+	inline void SetChaos(bool value) { mChaos = !mConfuse && value; }
 
 private:
 	void InitRenderData();

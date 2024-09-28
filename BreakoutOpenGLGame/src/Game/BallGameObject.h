@@ -27,14 +27,20 @@ public:
 	inline bool IsActive() const { return mIsActive; }
 	inline const glm::vec2& GetInitialVelocity() const { return mInitialVelocity; }
 	inline const ParticleEmitter* GetParticleEmitter() const { return &mParticleEmitter; }
+	inline bool IsSticky() const { return mSticky; }
+	inline bool IsPassingThrough() const { return mPassThrough; }
+
+	inline void SetSticky(bool value) { mSticky = value; }
+	inline void SetPassThrough(bool value) { mPassThrough = value; }
 
 	void Init(const BallInitOptions& options);
 	void Move(float dt, float windowWidth);
 	void Update(float dt);
 
 	inline void Activate() { mIsActive = true; }
+	inline void Deactivate() { mIsActive = false; }
 	void FollowPaddle(const float playerDisplacementX);
-	BallHitResult Collides(const GameObject* brick) const;
+	BallHitResult Collides(const GameObject& brick) const;
 
 private:
 	ParticleEmitter mParticleEmitter;
@@ -42,4 +48,6 @@ private:
 
 	float mRadius;
 	bool mIsActive = false;
+	bool mSticky = false;
+	bool mPassThrough = false;
 };

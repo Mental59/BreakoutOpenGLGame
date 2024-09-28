@@ -19,6 +19,8 @@ public:
 	};
 
 	GameObject() = default;
+	GameObject(GameObject&& other) noexcept;
+
 	void Init(const GameObjectInitOptions& options);
 
 	const inline glm::vec2& GetPosition() const { return mPosition; }
@@ -34,9 +36,10 @@ public:
 	const inline void SetColor(const glm::vec4& color) { mColor = color; }
 	const inline void SetRotation(const float rotation) { mRotation = rotation; }
 
+	bool Collides(const GameObject& gameObject) const;
 protected:
 	glm::vec2 mPosition, mSize, mVelocity;
 	glm::vec4 mColor;
-	float mRotation;
 	Texture2D* mSprite;
+	float mRotation;
 };
