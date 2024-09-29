@@ -17,6 +17,11 @@ enum GameState : unsigned char
 	GAME_WIN
 };
 
+namespace irrklang
+{
+	class ISoundEngine;
+}
+
 class Game
 {
 public:
@@ -38,6 +43,7 @@ private:
 	void InitPlayer();
 	void InitBall();
 	void InitPowerUpSpawner();
+	void InitAudio();
 
 	void CheckCollisions();
 	void ResetCurrentLevel();
@@ -58,6 +64,8 @@ private:
 	bool mKeys[NUM_KEYS];
 	unsigned int mLevelIndex;
 	float mShakeTime;
+
+	irrklang::ISoundEngine* mSoundEngine;
 
 	GameState mState;
 };

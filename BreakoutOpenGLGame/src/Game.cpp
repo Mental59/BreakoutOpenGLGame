@@ -2,6 +2,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glfw3.h>
+#include <irrklang/irrKlang.h>
 #include "Game.h"
 #include "Manager/ResourceManager.h"
 #include "Shader/ShaderProgram.h"
@@ -37,7 +38,8 @@ Game::Game(int width, int height) :
 	mLevelIndex(1),
 	mShakeTime(0.0f),
 	mPlayer(),
-	mPowerUpSpawner()
+	mPowerUpSpawner(),
+	mSoundEngine(nullptr)
 {
 
 }
@@ -58,6 +60,7 @@ void Game::Init()
 	InitBall();
 	mRenderManager.Init(mResourceManager.GetShader(POST_PROCESSING_SHADER_INDEX), mWidth, mHeight);
 	InitPowerUpSpawner();
+	InitAudio();
 }
 
 void Game::ProcessInput(float dt)
@@ -363,6 +366,18 @@ void Game::InitPowerUpSpawner()
 	initOptions.ConfuseTexture = mResourceManager.GetTexture2D(TEXTURE_CONFUSE_POWERUP_INDEX);
 	initOptions.ChaosTexture = mResourceManager.GetTexture2D(TEXTURE_CHAOS_POWERUP_INDEX);
 	mPowerUpSpawner.Init(initOptions);
+}
+
+void Game::InitAudio()
+{
+	mSoundEngine = irrklang::createIrrKlangDevice();
+	irrklang::ISound* sound = mSoundEngine->play2D("resources/audio/breakout.mp3", true, false, true);
+	if (sound)
+	{
+		sound->setVolume(0.5f);
+		sound->drop();
+		sound = nullptr;
+	}
 }
 
 void Game::ResetCurrentLevel()
