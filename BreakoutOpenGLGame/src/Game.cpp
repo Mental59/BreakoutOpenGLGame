@@ -3,6 +3,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glfw3.h>
 #include <irrklang/irrKlang.h>
+#include <iostream>
 #include "Game.h"
 #include "Manager/ResourceManager.h"
 #include "Shader/ShaderProgram.h"
@@ -379,13 +380,21 @@ void Game::InitPowerUpSpawner()
 void Game::InitAudio()
 {
 	mSoundEngine = irrklang::createIrrKlangDevice();
+	if (!mSoundEngine)
+	{
+		std::cout << "GAME::ERROR Failed to initialize sound engine" << std::endl;
+	}
 	PlaySoundWithVolume("resources/audio/breakout.mp3", 0.5f, true);
 }
 
 void Game::PlaySoundWithVolume(const char* path, float volume, bool loop)
 {
-	irrklang::ISound* sound = mSoundEngine->play2D(path, loop, false, true);
-	if (sound)
+	if (!mSoundEngine)
+	{
+		return;
+	}
+
+	if (irrklang::ISound* sound = mSoundEngine->play2D(path, loop, false, true))
 	{
 		sound->setVolume(volume);
 		sound->drop();
