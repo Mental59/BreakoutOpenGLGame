@@ -89,9 +89,10 @@ void Game::ProcessInput(float dt)
 
 			mBall.FollowPaddle(displacementX);
 		}
-		if (mKeys[GLFW_KEY_SPACE])
+		if (mKeys[GLFW_KEY_SPACE] && !mBall.IsActive())
 		{
 			mBall.Activate();
+			PlaySoundWithVolume("resources/audio/bleep.wav", 0.6f, false);
 		}
 	}
 }
