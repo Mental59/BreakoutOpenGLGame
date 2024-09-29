@@ -212,10 +212,12 @@ void Game::CheckCollisions()
 			{
 				mShakeTime = 0.075f;
 				mRenderManager.SetShake(true);
+				PlaySoundWithVolume("resources/audio/solid.wav", 0.6f, false);
 			}
 			else
 			{
 				mPowerUpSpawner.SpawnAt(bricks[i].GetPosition());
+				PlaySoundWithVolume("resources/audio/bleep.mp3", 0.6f, false);
 			}
 		}
 	}
@@ -240,6 +242,10 @@ void Game::CheckCollisions()
 		{
 			mBall.Deactivate();
 		}
+		else
+		{
+			PlaySoundWithVolume("resources/audio/bleep.wav", 0.6f, false);
+		}
 	}
 
 	for (PowerUp& powerUp : mPowerUpSpawner.GetSpawnedPowerUps())
@@ -258,6 +264,7 @@ void Game::CheckCollisions()
 			ActivatePowerUp(powerUp);
 			powerUp.Activate();
 			powerUp.Destroy();
+			PlaySoundWithVolume("resources/audio/powerup.wav", 0.6f, false);
 		}
 	}
 }
@@ -371,10 +378,15 @@ void Game::InitPowerUpSpawner()
 void Game::InitAudio()
 {
 	mSoundEngine = irrklang::createIrrKlangDevice();
-	irrklang::ISound* sound = mSoundEngine->play2D("resources/audio/breakout.mp3", true, false, true);
+	PlaySoundWithVolume("resources/audio/breakout.mp3", 0.5f, true);
+}
+
+void Game::PlaySoundWithVolume(const char* path, float volume, bool loop)
+{
+	irrklang::ISound* sound = mSoundEngine->play2D(path, loop, false, true);
 	if (sound)
 	{
-		sound->setVolume(0.5f);
+		sound->setVolume(volume);
 		sound->drop();
 		sound = nullptr;
 	}

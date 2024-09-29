@@ -45,6 +45,8 @@ private:
 	void InitPowerUpSpawner();
 	void InitAudio();
 
+	void PlaySoundWithVolume(const char* path, float volume, bool loop);
+
 	void CheckCollisions();
 	void ResetCurrentLevel();
 
