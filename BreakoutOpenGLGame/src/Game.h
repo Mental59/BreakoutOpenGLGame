@@ -40,7 +40,7 @@ public:
 	void Resize(int width, int height);
 private:
 	void InitResources();
-	void InitPlayer();
+	void InitPaddle();
 	void InitBall();
 	void InitPowerUpSpawner();
 	void InitAudio();
@@ -48,10 +48,26 @@ private:
 	void PlaySoundWithVolume(const char* path, float volume, bool loop);
 
 	void CheckCollisions();
+	void CheckCollisionsWithBricks();
+	void CheckCollisionWithPaddle();
+	void CheckCollisionsWithPowerUps();
+
 	void ResetCurrentLevel();
 
 	void ActivatePowerUp(const PowerUp& powerUp);
 	void UpdatePowerUps(float dt);
+
+	void ActivateSpeedPowerUp();
+	void ActivateStickyBallPowerUp();
+	void ActivatePassThroughPowerUp();
+	void ActiatePadSizeIncreasePowerUp();
+	void ActivateConfusePowerUp();
+	void ActivateChaosPowerUp();
+
+	void DisableStickyBallPowerUp();
+	void DisablePassThroughPowerUp();
+	void DisableConfusePowerUp();
+	void DisableChaosPowerUp();
 
 	ResourceManager mResourceManager;
 	RenderManager mRenderManager;
@@ -59,7 +75,7 @@ private:
 	PowerUpSpawner mPowerUpSpawner;
 
 	SpriteRenderer mSpriteRenderer;
-	GameObject mPlayer;
+	GameObject mPaddle;
 	BallGameObject mBall;
 
 	int mWidth, mHeight;

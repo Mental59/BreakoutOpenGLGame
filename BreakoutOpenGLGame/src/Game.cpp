@@ -29,6 +29,9 @@ static unsigned int TEXTURE_PADSIZEINCREASE_POWERUP_INDEX;
 static unsigned int TEXTURE_CONFUSE_POWERUP_INDEX;
 static unsigned int TEXTURE_CHAOS_POWERUP_INDEX;
 
+static glm::vec2 BALL_INITIAL_VELOCITY;
+static glm::vec2 PADDLE_INITIAL_SIZE;
+
 Game::Game(int width, int height) :
 	mWidth(width),
 	mHeight(height),
@@ -38,7 +41,7 @@ Game::Game(int width, int height) :
 	mSpriteRenderer(),
 	mLevelIndex(1),
 	mShakeTime(0.0f),
-	mPlayer(),
+	mPaddle(),
 	mPowerUpSpawner(),
 	mSoundEngine(nullptr)
 {
@@ -57,7 +60,7 @@ void Game::Init()
 {
 	mSpriteRenderer.Init();
 	InitResources();
-	InitPlayer();
+	InitPaddle();
 	InitBall();
 	mRenderManager.Init(mResourceManager.GetShader(POST_PROCESSING_SHADER_INDEX), mWidth, mHeight);
 	InitPowerUpSpawner();
@@ -68,25 +71,25 @@ void Game::ProcessInput(float dt)
 {
 	if (mState == GAME_ACTIVE)
 	{
-		glm::vec2 playerVelocity = mPlayer.GetVelocity();
-		glm::vec2 playerPos = mPlayer.GetPosition();
-		glm::vec2 playerSize = mPlayer.GetSize();
+		glm::vec2 paddleVelocity = mPaddle.GetVelocity();
+		glm::vec2 paddlePos = mPaddle.GetPosition();
+		glm::vec2 paddleSize = mPaddle.GetSize();
 
-		if (mKeys[GLFW_KEY_A] && playerPos.x > 0.0f)
+		if (mKeys[GLFW_KEY_A] && paddlePos.x > 0.0f)
 		{
-			float displacementX = -playerVelocity.x * dt;
+			float displacementX = -paddleVelocity.x * dt;
 
-			playerPos.x += displacementX;
-			mPlayer.SetPosition(playerPos);
+			paddlePos.x += displacementX;
+			mPaddle.SetPosition(paddlePos);
 
 			mBall.FollowPaddle(displacementX);
 		}
-		if (mKeys[GLFW_KEY_D] && playerPos.x < mWidth - playerSize.x)
+		if (mKeys[GLFW_KEY_D] && paddlePos.x < mWidth - paddleSize.x)
 		{
-			float displacementX = playerVelocity.x * dt;
+			float displacementX = paddleVelocity.x * dt;
 
-			playerPos.x += displacementX;
-			mPlayer.SetPosition(playerPos);
+			paddlePos.x += displacementX;
+			mPaddle.SetPosition(paddlePos);
 
 			mBall.FollowPaddle(displacementX);
 		}
@@ -133,7 +136,7 @@ void Game::Render()
 
 		mSpriteRenderer.Draw(spriteShader, backgroundTexture, glm::vec2(0.0f), glm::vec2(mWidth, mHeight), 0.0f, glm::vec4(1.0f));
 		mSpriteRenderer.DrawGameLevel(spriteShader, currentLevel);
-		mSpriteRenderer.DrawGameObject(spriteShader, &mPlayer);
+		mSpriteRenderer.DrawGameObject(spriteShader, &mPaddle);
 
 		for (PowerUp& powerUp : mPowerUpSpawner.GetSpawnedPowerUps())
 		{
@@ -156,119 +159,6 @@ void Game::Render()
 void Game::Resize(int width, int height)
 {
 	mRenderManager.Resize(width, height);
-}
-
-void Game::CheckCollisions()
-{
-	if (!mBall.IsActive())
-	{
-		return;
-	}
-
-	GameLevel* currentLevel = mResourceManager.GetLevel(mLevelIndex);
-	BrickGameObject* bricks = currentLevel->GetBricks();
-	for (unsigned int i = 0; i < currentLevel->GetNumBricks(); i++)
-	{
-		if (bricks[i].IsDestroyed())
-		{
-			continue;
-		}
-
-		BallGameObject::BallHitResult hitResult = mBall.Collides(bricks[i]);
-
-		if (hitResult.Collided)
-		{
-			bricks[i].Destroy();
-
-			if (!mBall.IsPassingThrough() || bricks[i].IsSolid())
-			{
-				glm::vec2 penetrationDistance = mBall.GetRadius() - glm::abs(hitResult.HitPoint - mBall.GetCenter());
-				glm::vec2 ballPosition = mBall.GetPosition();
-				glm::vec2 ballVelosity = mBall.GetVelocity();
-
-				switch (hitResult.BrickSideDirection)
-				{
-				case VectorDirection::Up:
-					ballVelosity.y = -ballVelosity.y;
-					ballPosition.y -= penetrationDistance.y;
-					break;
-				case VectorDirection::Right:
-					ballVelosity.x = -ballVelosity.x;
-					ballPosition.x -= penetrationDistance.x;
-					break;
-				case VectorDirection::Down:
-					ballVelosity.y = -ballVelosity.y;
-					ballPosition.y += penetrationDistance.y;
-					break;
-				case VectorDirection::Left:
-					ballVelosity.x = -ballVelosity.x;
-					ballPosition.x += penetrationDistance.x;
-					break;
-				}
-
-				mBall.SetPosition(ballPosition);
-				mBall.SetVelocity(ballVelosity);
-			}
-
-			if (bricks[i].IsSolid())
-			{
-				mShakeTime = 0.075f;
-				mRenderManager.SetShake(true);
-				PlaySoundWithVolume("resources/audio/solid.wav", 0.6f, false);
-			}
-			else
-			{
-				mPowerUpSpawner.SpawnAt(bricks[i].GetPosition());
-				PlaySoundWithVolume("resources/audio/bleep.mp3", 0.6f, false);
-			}
-		}
-	}
-
-	BallGameObject::BallHitResult hitWithPaddle = mBall.Collides(mPlayer);
-	if (hitWithPaddle.Collided)
-	{
-		glm::vec2 ballCenter = mBall.GetCenter();
-		glm::vec2 paddleCenter = mPlayer.GetPosition() + mPlayer.GetSize() / 2.0f;
-		glm::vec2 paddleToBall = ballCenter - paddleCenter;
-
-		float percentage = paddleToBall.x / (mPlayer.GetSize().x / 2.0f);
-
-		glm::vec2 newBallVelocity = mBall.GetVelocity();
-		newBallVelocity.x = mBall.GetInitialVelocity().x * percentage * 2.0f;
-		newBallVelocity.y = -std::abs(newBallVelocity.y);
-		newBallVelocity = glm::normalize(newBallVelocity) * glm::length(mBall.GetVelocity());
-
-		mBall.SetVelocity(newBallVelocity);
-
-		if (mBall.IsSticky())
-		{
-			mBall.Deactivate();
-		}
-		else
-		{
-			PlaySoundWithVolume("resources/audio/bleep.wav", 0.6f, false);
-		}
-	}
-
-	for (PowerUp& powerUp : mPowerUpSpawner.GetSpawnedPowerUps())
-	{
-		if (powerUp.IsDestroyed())
-		{
-			continue;
-		}
-
-		if (powerUp.GetPosition().y >= mHeight)
-		{
-			powerUp.Destroy();
-		}
-		else if (mPlayer.Collides(powerUp))
-		{
-			ActivatePowerUp(powerUp);
-			powerUp.Activate();
-			powerUp.Destroy();
-			PlaySoundWithVolume("resources/audio/powerup.wav", 0.6f, false);
-		}
-	}
 }
 
 void Game::InitResources()
@@ -331,31 +221,33 @@ void Game::InitResources()
 	mResourceManager.LoadLevel(loadLevelOptions);
 }
 
-void Game::InitPlayer()
+void Game::InitPaddle()
 {
-	const glm::vec2 playerSize(100.0f, 20.0f);
-	const glm::vec2 playerPos(
-		static_cast<float>(mWidth) / 2.0f - playerSize.x / 2.0f,
-		static_cast<float>(mHeight) - playerSize.y - 10.0f
+	const glm::vec2 paddleSize(100.0f, 20.0f);
+	const glm::vec2 paddlePos(
+		static_cast<float>(mWidth) / 2.0f - paddleSize.x / 2.0f,
+		static_cast<float>(mHeight) - paddleSize.y - 10.0f
 	);
 
 	GameObject::GameObjectInitOptions initOptions;
-	initOptions.Position = playerPos;
-	initOptions.Size = playerSize;
+	initOptions.Position = paddlePos;
+	initOptions.Size = paddleSize;
 	initOptions.Sprite = mResourceManager.GetTexture2D(TEXTURE_PADDLE_INDEX);
 	initOptions.Velocity = glm::vec2(500.0f, 0.0f);
-	mPlayer.Init(initOptions);
+	mPaddle.Init(initOptions);
+
+	PADDLE_INITIAL_SIZE = mPaddle.GetSize();
 }
 
 void Game::InitBall()
 {
 	const float radius = 12.5f;
 
-	glm::vec2 playerPos = mPlayer.GetPosition();
-	glm::vec2 playerSize = mPlayer.GetSize();
+	glm::vec2 paddlePos = mPaddle.GetPosition();
+	glm::vec2 paddleSize = mPaddle.GetSize();
 
 	BallGameObject::BallInitOptions options;
-	options.Position = playerPos + glm::vec2(playerSize.x / 2.0f - radius, -radius * 2.0f);
+	options.Position = paddlePos + glm::vec2(paddleSize.x / 2.0f - radius, -radius * 2.0f);
 	options.Size = glm::vec2(radius * 2.0f, radius * 2.0f);
 	options.Sprite = mResourceManager.GetTexture2D(TEXTURE_AWESOMEFACE_INDEX);
 	options.Velocity = glm::vec2(100.0f, -350.0f);
@@ -363,6 +255,8 @@ void Game::InitBall()
 	options.ParticleTexture = mResourceManager.GetTexture2D(TEXTURE_PARTICLE_INDEX);
 
 	mBall.Init(options);
+
+	BALL_INITIAL_VELOCITY = mBall.GetVelocity();
 }
 
 void Game::InitPowerUpSpawner()
@@ -402,10 +296,145 @@ void Game::PlaySoundWithVolume(const char* path, float volume, bool loop)
 	}
 }
 
+void Game::CheckCollisions()
+{
+	if (!mBall.IsActive())
+	{
+		return;
+	}
+
+	CheckCollisionsWithBricks();
+	CheckCollisionWithPaddle();
+	CheckCollisionsWithPowerUps();
+}
+
+void Game::CheckCollisionsWithBricks()
+{
+	GameLevel* currentLevel = mResourceManager.GetLevel(mLevelIndex);
+	BrickGameObject* bricks = currentLevel->GetBricks();
+	for (unsigned int i = 0; i < currentLevel->GetNumBricks(); i++)
+	{
+		if (bricks[i].IsDestroyed())
+		{
+			continue;
+		}
+
+		BallGameObject::BallHitResult hitResult = mBall.Collides(bricks[i]);
+
+		if (hitResult.Collided)
+		{
+			bricks[i].Destroy();
+
+			if (!mBall.IsPassingThrough() || bricks[i].IsSolid())
+			{
+				glm::vec2 penetrationDistance = mBall.GetRadius() - glm::abs(hitResult.HitPoint - mBall.GetCenter());
+				glm::vec2 ballPosition = mBall.GetPosition();
+				glm::vec2 ballVelosity = mBall.GetVelocity();
+
+				switch (hitResult.BrickSideDirection)
+				{
+				case VectorDirection::Up:
+					ballVelosity.y = -ballVelosity.y;
+					ballPosition.y -= penetrationDistance.y;
+					break;
+				case VectorDirection::Right:
+					ballVelosity.x = -ballVelosity.x;
+					ballPosition.x -= penetrationDistance.x;
+					break;
+				case VectorDirection::Down:
+					ballVelosity.y = -ballVelosity.y;
+					ballPosition.y += penetrationDistance.y;
+					break;
+				case VectorDirection::Left:
+					ballVelosity.x = -ballVelosity.x;
+					ballPosition.x += penetrationDistance.x;
+					break;
+				}
+
+				mBall.SetPosition(ballPosition);
+				mBall.SetVelocity(ballVelosity);
+			}
+
+			if (bricks[i].IsSolid())
+			{
+				mShakeTime = 0.075f;
+				mRenderManager.SetShake(true);
+				PlaySoundWithVolume("resources/audio/solid.wav", 0.6f, false);
+			}
+			else
+			{
+				mPowerUpSpawner.SpawnAt(bricks[i].GetPosition());
+				PlaySoundWithVolume("resources/audio/bleep.mp3", 0.6f, false);
+			}
+		}
+	}
+}
+
+void Game::CheckCollisionWithPaddle()
+{
+	BallGameObject::BallHitResult hitWithPaddle = mBall.Collides(mPaddle);
+	if (hitWithPaddle.Collided)
+	{
+		glm::vec2 ballCenter = mBall.GetCenter();
+		glm::vec2 paddleCenter = mPaddle.GetPosition() + mPaddle.GetSize() / 2.0f;
+		glm::vec2 paddleToBall = ballCenter - paddleCenter;
+
+		float percentage = paddleToBall.x / (mPaddle.GetSize().x / 2.0f);
+
+		glm::vec2 newBallVelocity = mBall.GetVelocity();
+		newBallVelocity.x = mBall.GetInitialVelocity().x * percentage * 2.0f;
+		newBallVelocity.y = -std::abs(newBallVelocity.y);
+		newBallVelocity = glm::normalize(newBallVelocity) * glm::length(mBall.GetVelocity());
+
+		mBall.SetVelocity(newBallVelocity);
+
+		if (mBall.IsSticky())
+		{
+			mBall.Deactivate();
+		}
+		else
+		{
+			PlaySoundWithVolume("resources/audio/bleep.wav", 0.6f, false);
+		}
+	}
+}
+
+void Game::CheckCollisionsWithPowerUps()
+{
+	for (PowerUp& powerUp : mPowerUpSpawner.GetSpawnedPowerUps())
+	{
+		if (powerUp.IsDestroyed())
+		{
+			continue;
+		}
+
+		if (powerUp.GetPosition().y >= mHeight)
+		{
+			powerUp.Destroy();
+		}
+		else if (mPaddle.Collides(powerUp))
+		{
+			ActivatePowerUp(powerUp);
+			powerUp.Activate();
+			powerUp.Destroy();
+			PlaySoundWithVolume("resources/audio/powerup.wav", 0.6f, false);
+		}
+	}
+}
+
 void Game::ResetCurrentLevel()
 {
-	InitPlayer();
+	InitPaddle();
 	InitBall();
+	mPowerUpSpawner.Clear();
+
+	DisableStickyBallPowerUp();
+	DisablePassThroughPowerUp();
+	DisableConfusePowerUp();
+	DisableChaosPowerUp();
+
+	mPaddle.SetSize(PADDLE_INITIAL_SIZE);
+	mBall.SetVelocity(BALL_INITIAL_VELOCITY);
 
 	mResourceManager.GetLevel(mLevelIndex)->Reset();
 }
@@ -415,24 +444,22 @@ void Game::ActivatePowerUp(const PowerUp& powerUp)
 	switch (powerUp.GetType())
 	{
 	case PowerUp::PowerUpType::Speed:
-		mBall.SetVelocity(mBall.GetVelocity() * 1.2f);
+		ActivateSpeedPowerUp();
 		break;
 	case PowerUp::PowerUpType::Sticky:
-		mBall.SetSticky(true);
-		mPlayer.SetColor(glm::vec4(1.0f, 0.5f, 1.0f, 1.0f));
+		ActivateStickyBallPowerUp();
 		break;
 	case PowerUp::PowerUpType::PassThrough:
-		mBall.SetPassThrough(true);
-		mBall.SetColor(glm::vec4(1.0f, 0.5f, 0.5f, 1.0f));
+		ActivatePassThroughPowerUp();
 		break;
 	case PowerUp::PowerUpType::PadSizeIncrease:
-		mPlayer.SetSize(mPlayer.GetSize() + glm::vec2(50.f, 0.0f));
+		ActiatePadSizeIncreasePowerUp();
 		break;
 	case PowerUp::PowerUpType::Confuse:
-		mRenderManager.SetConfuse(true);
+		ActivateConfusePowerUp();
 		break;
 	case PowerUp::PowerUpType::Chaos:
-		mRenderManager.SetChaos(true);
+		ActivateChaosPowerUp();
 		break;
 	}
 }
@@ -519,20 +546,72 @@ void Game::UpdatePowerUps(float dt)
 
 	if (shouldDeactivateSticky && !hasActivatedSticky)
 	{
-		mBall.SetSticky(false);
-		mPlayer.SetColor(glm::vec4(1.0f));
+		DisableStickyBallPowerUp();
 	}
 	if (shouldDeactivatePassThrough && !hasActivatedPassThrough)
 	{
-		mBall.SetPassThrough(false);
-		mBall.SetColor(glm::vec4(1.0f));
+		DisablePassThroughPowerUp();
 	}
 	if (shouldDeactivateConfuse && !hasActivatedConfuse)
 	{
-		mRenderManager.SetConfuse(false);
+		DisableConfusePowerUp();
 	}
 	if (shouldDeactivateChaos && !hasActivatedChaos)
 	{
-		mRenderManager.SetChaos(false);
+		DisableChaosPowerUp();
 	}
+}
+
+void Game::ActivateSpeedPowerUp()
+{
+	mBall.SetVelocity(mBall.GetVelocity() * 1.2f);
+}
+
+void Game::ActivateStickyBallPowerUp()
+{
+	mBall.SetSticky(true);
+	mPaddle.SetColor(glm::vec4(1.0f, 0.5f, 1.0f, 1.0f));
+}
+
+void Game::ActivatePassThroughPowerUp()
+{
+	mBall.SetPassThrough(true);
+	mBall.SetColor(glm::vec4(1.0f, 0.5f, 0.5f, 1.0f));
+}
+
+void Game::ActiatePadSizeIncreasePowerUp()
+{
+	mPaddle.SetSize(mPaddle.GetSize() + glm::vec2(50.f, 0.0f));
+}
+
+void Game::ActivateConfusePowerUp()
+{
+	mRenderManager.SetConfuse(true);
+}
+
+void Game::ActivateChaosPowerUp()
+{
+	mRenderManager.SetChaos(true);
+}
+
+void Game::DisableStickyBallPowerUp()
+{
+	mBall.SetSticky(false);
+	mPaddle.SetColor(glm::vec4(1.0f));
+}
+
+void Game::DisablePassThroughPowerUp()
+{
+	mBall.SetPassThrough(false);
+	mBall.SetColor(glm::vec4(1.0f));
+}
+
+void Game::DisableConfusePowerUp()
+{
+	mRenderManager.SetConfuse(false);
+}
+
+void Game::DisableChaosPowerUp()
+{
+	mRenderManager.SetChaos(false);
 }

@@ -53,14 +53,14 @@ void BallGameObject::Update(float dt)
 	mParticleEmitter.Update(dt, glm::vec2(mRadius / 2.0f));
 }
 
-void BallGameObject::FollowPaddle(const float playerDisplacementX)
+void BallGameObject::FollowPaddle(const float paddleDisplacementX)
 {
 	if (mIsActive)
 	{
 		return;
 	}
 
-	mPosition.x += playerDisplacementX;
+	mPosition.x += paddleDisplacementX;
 }
 
 BallGameObject::BallHitResult BallGameObject::Collides(const GameObject& gameObject) const

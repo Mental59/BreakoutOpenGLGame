@@ -39,7 +39,7 @@ public:
 
 	inline void Activate() { mIsActive = true; }
 	inline void Deactivate() { mIsActive = false; }
-	void FollowPaddle(const float playerDisplacementX);
+	void FollowPaddle(const float paddleDisplacementX);
 	BallHitResult Collides(const GameObject& brick) const;
 
 private:

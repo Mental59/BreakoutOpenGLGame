@@ -25,6 +25,7 @@ public:
 	void Init(const PowerUpSwawnerOptions& options);
 	void SpawnAt(glm::vec2 position);
 	void RemoveUnusedPowerups();
+	void Clear();
 
 	inline std::vector<PowerUp>& GetSpawnedPowerUps() { return mSpawnedPowerups; }
 

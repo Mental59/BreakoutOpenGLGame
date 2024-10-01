@@ -103,6 +103,11 @@ void PowerUpSpawner::RemoveUnusedPowerups()
 	);
 }
 
+void PowerUpSpawner::Clear()
+{
+	mSpawnedPowerups.clear();
+}
+
 bool PowerUpSpawner::ShouldSpawn(float chance)
 {
 	std::uniform_real_distribution<float> dist(0.0f, 1.0f);
