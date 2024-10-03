@@ -8,6 +8,7 @@
 #include "Game/PowerUpSpawner.h"
 #include "Game/PowerUp.h"
 #include "Renderer/TextRenderer.h"
+#include <glm/glm.hpp>
 
 static int constexpr NUM_KEYS = 1024;
 
@@ -41,7 +42,7 @@ public:
 	void Resize(int width, int height);
 private:
 	void InitResources();
-	void InitPaddle();
+	void InitPaddle(glm::vec2 pos, bool setInitPos);
 	void InitBall();
 	void InitPowerUpSpawner();
 	void InitAudio();

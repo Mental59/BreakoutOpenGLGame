@@ -35,6 +35,8 @@ static unsigned int TEXTURE_CHAOS_POWERUP_INDEX;
 static glm::vec2 BALL_INITIAL_VELOCITY;
 static glm::vec2 PADDLE_INITIAL_SIZE;
 
+static unsigned int MAX_LIVES = 3;
+
 Game::Game(int width, int height) :
 	mWidth(width),
 	mHeight(height),
@@ -47,7 +49,7 @@ Game::Game(int width, int height) :
 	mPaddle(),
 	mPowerUpSpawner(),
 	mSoundEngine(nullptr),
-	mLives(3)
+	mLives(MAX_LIVES)
 {
 
 }
@@ -64,7 +66,7 @@ void Game::Init()
 {
 	mSpriteRenderer.Init();
 	InitResources();
-	InitPaddle();
+	InitPaddle(glm::vec2(0.0f), true);
 	InitBall();
 	mRenderManager.Init(mResourceManager.GetShader(SHADER_POST_PROCESSING_INDEX), mWidth, mHeight);
 	InitPowerUpSpawner();
@@ -76,6 +78,7 @@ void Game::ProcessInput(float dt)
 {
 	static bool keyAPrevious = false;
 	static bool keyDPrevious = false;
+	static bool keySpacePrevious = false;
 
 	if (mState == GAME_ACTIVE)
 	{
@@ -133,6 +136,7 @@ void Game::ProcessInput(float dt)
 
 	keyAPrevious = mKeys[GLFW_KEY_A];
 	keyDPrevious = mKeys[GLFW_KEY_D];
+	keySpacePrevious = mKeys[GLFW_KEY_SPACE];
 }
 
 void Game::Update(float dt)
@@ -278,16 +282,24 @@ void Game::InitResources()
 	mResourceManager.LoadLevel(loadLevelOptions);
 }
 
-void Game::InitPaddle()
+void Game::InitPaddle(glm::vec2 pos, bool setInitPos)
 {
-	const glm::vec2 paddleSize(100.0f, 20.0f);
-	const glm::vec2 paddlePos(
-		static_cast<float>(mWidth) / 2.0f - paddleSize.x / 2.0f,
-		static_cast<float>(mHeight) - paddleSize.y - 10.0f
-	);
-
 	GameObject::GameObjectInitOptions initOptions;
-	initOptions.Position = paddlePos;
+
+	const glm::vec2 paddleSize(100.0f, 20.0f);
+	if (setInitPos)
+	{
+		const glm::vec2 paddlePos(
+			static_cast<float>(mWidth) / 2.0f - paddleSize.x / 2.0f,
+			static_cast<float>(mHeight) - paddleSize.y - 10.0f
+		);
+		initOptions.Position = paddlePos;
+	}
+	else
+	{
+		initOptions.Position = pos;
+	}
+
 	initOptions.Size = paddleSize;
 	initOptions.Sprite = mResourceManager.GetTexture2D(TEXTURE_PADDLE_INDEX);
 	initOptions.Velocity = glm::vec2(500.0f, 0.0f);
@@ -481,7 +493,18 @@ void Game::CheckCollisionsWithPowerUps()
 
 void Game::ResetCurrentLevel(bool resetLevel)
 {
-	InitPaddle();
+	if (resetLevel)
+	{
+		InitPaddle(mPaddle.GetPosition(), true);
+		mResourceManager.GetLevel(mLevelIndex)->Reset();
+		mState = GAME_MENU;
+		mLives = MAX_LIVES;
+	}
+	else
+	{
+		InitPaddle(mPaddle.GetPosition(), false);
+	}
+
 	InitBall();
 	mPowerUpSpawner.Clear();
 
@@ -497,6 +520,7 @@ void Game::ResetCurrentLevel(bool resetLevel)
 	{
 		mResourceManager.GetLevel(mLevelIndex)->Reset();
 		mState = GAME_MENU;
+		mLives = MAX_LIVES;
 	}
 }
 
