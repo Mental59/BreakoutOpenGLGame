@@ -131,7 +131,11 @@ void Game::ProcessInput(float dt)
 	}
 	else
 	{
-
+		if (!mKeys[GLFW_KEY_SPACE] && keySpacePrevious)
+		{
+			ResetCurrentLevel(true);
+			mLevelIndex = 0;
+		}
 	}
 
 	keyAPrevious = mKeys[GLFW_KEY_A];
@@ -141,31 +145,41 @@ void Game::ProcessInput(float dt)
 
 void Game::Update(float dt)
 {
-	mBall.Move(dt, static_cast<float>(mWidth));
-	mBall.Update(dt);
-	CheckCollisions();
-	if (mBall.GetPosition().y >= mHeight)
+	if (mState == GAME_ACTIVE)
 	{
-		if (--mLives == 0)
+		mBall.Move(dt, static_cast<float>(mWidth));
+		mBall.Update(dt);
+
+		CheckCollisions();
+
+		if (mBall.GetPosition().y >= mHeight)
 		{
-			ResetCurrentLevel(true);
+			if (--mLives == 0)
+			{
+				ResetCurrentLevel(true);
+			}
+			else
+			{
+				ResetCurrentLevel(false);
+			}
+		}
+
+		if (mShakeTime <= 0.0f)
+		{
+			mRenderManager.SetShake(false);
 		}
 		else
 		{
-			ResetCurrentLevel(false);
+			mShakeTime -= dt;
+		}
+
+		UpdatePowerUps(dt);
+
+		if (mResourceManager.GetLevel(mLevelIndex)->IsCompleted())
+		{
+			mState = GAME_WIN;
 		}
 	}
-
-	if (mShakeTime <= 0.0f)
-	{
-		mRenderManager.SetShake(false);
-	}
-	else
-	{
-		mShakeTime -= dt;
-	}
-
-	UpdatePowerUps(dt);
 }
 
 void Game::Render()
@@ -173,40 +187,42 @@ void Game::Render()
 	ShaderProgram* spriteShader = mResourceManager.GetShader(SHADER_SPRITE_INDEX);
 	Texture2D* backgroundTexture = mResourceManager.GetTexture2D(TEXTURE_BACKGROUND_INDEX);
 	GameLevel* currentLevel = mResourceManager.GetLevel(mLevelIndex);
+	Texture2D* awesomeFaceTexture = mResourceManager.GetTexture2D(TEXTURE_AWESOMEFACE_INDEX);
 
-	if (mState == GAME_ACTIVE || mState == GAME_MENU)
+	mRenderManager.Begin();
+
+	mSpriteRenderer.Draw(spriteShader, backgroundTexture, glm::vec2(0.0f), glm::vec2(mWidth, mHeight), 0.0f, glm::vec4(1.0f));
+	mSpriteRenderer.DrawGameLevel(spriteShader, currentLevel);
+	mSpriteRenderer.DrawGameObject(spriteShader, &mPaddle);
+
+	for (PowerUp& powerUp : mPowerUpSpawner.GetSpawnedPowerUps())
 	{
-		Texture2D* awesomeFaceTexture = mResourceManager.GetTexture2D(TEXTURE_AWESOMEFACE_INDEX);
-
-		mRenderManager.Begin();
-
-		mSpriteRenderer.Draw(spriteShader, backgroundTexture, glm::vec2(0.0f), glm::vec2(mWidth, mHeight), 0.0f, glm::vec4(1.0f));
-		mSpriteRenderer.DrawGameLevel(spriteShader, currentLevel);
-		mSpriteRenderer.DrawGameObject(spriteShader, &mPaddle);
-
-		for (PowerUp& powerUp : mPowerUpSpawner.GetSpawnedPowerUps())
+		if (!powerUp.IsDestroyed())
 		{
-			if (!powerUp.IsDestroyed())
-			{
-				mSpriteRenderer.DrawGameObject(spriteShader, &powerUp);
-			}
+			mSpriteRenderer.DrawGameObject(spriteShader, &powerUp);
 		}
-
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-		mSpriteRenderer.DrawParticles(spriteShader, mBall.GetParticleEmitter());
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-		mSpriteRenderer.DrawGameObject(spriteShader, &mBall);
-
-		mRenderManager.End(glfwGetTime());
-
-		mTextRenderer.Draw(std::format("Lives: {}", mLives), glm::vec2(5.0f, 5.0f), glm::vec3(1.0f), 0.5f);
 	}
+
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+	mSpriteRenderer.DrawParticles(spriteShader, mBall.GetParticleEmitter());
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	mSpriteRenderer.DrawGameObject(spriteShader, &mBall);
+
+	mRenderManager.End(glfwGetTime());
+
+	mTextRenderer.Draw(std::format("Lives: {}", mLives), glm::vec2(5.0f, 5.0f), glm::vec3(0.0f, 1.0f, 0.0f), 0.5f);
 
 	if (mState == GAME_MENU)
 	{
 		mTextRenderer.Draw("Press SPACE to start", glm::vec2(350.0f, mHeight / 2 + 10.0f), glm::vec3(1.0f), 1.0f);
 		mTextRenderer.Draw("Press A or D to select level", glm::vec2(340.0f, mHeight / 2 + 50.0f), glm::vec3(1.0f), 0.75f);
+	}
+
+	if (mState == GAME_WIN)
+	{
+		mTextRenderer.Draw("You won!!!", glm::vec2(500.0f, mHeight / 2 + 10.0f), glm::vec3(1.0f, 0.0f, 0.0f), 1.0f);
+		mTextRenderer.Draw("Press SPACE to retry or ESC to quit", glm::vec2(280.0f, mHeight / 2 + 50.0f), glm::vec3(0.0f, 1.0f, 0.0f), 0.75f);
 	}
 }
 
