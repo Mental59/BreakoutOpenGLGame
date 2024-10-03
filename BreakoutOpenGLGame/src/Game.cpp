@@ -4,6 +4,7 @@
 #include <glfw3.h>
 #include <irrklang/irrKlang.h>
 #include <iostream>
+#include <format>
 #include "Game.h"
 #include "Manager/ResourceManager.h"
 #include "Shader/ShaderProgram.h"
@@ -13,9 +14,11 @@
 #include "Game/BallGameObject.h"
 #include "Game/PowerUpSpawner.h"
 #include "Game/PowerUp.h"
+#include "Renderer/TextRenderer.h"
 
-static unsigned int SPRITE_SHADER_INDEX;
-static unsigned int POST_PROCESSING_SHADER_INDEX;
+static unsigned int SHADER_SPRITE_INDEX;
+static unsigned int SHADER_POST_PROCESSING_INDEX;
+static unsigned int SHADER_TEXT_INDEX;
 static unsigned int TEXTURE_AWESOMEFACE_INDEX;
 static unsigned int TEXTURE_BLOCK_INDEX;
 static unsigned int TEXTURE_BLOCK_SOLID_INDEX;
@@ -36,14 +39,15 @@ Game::Game(int width, int height) :
 	mWidth(width),
 	mHeight(height),
 	mKeys(),
-	mState(GAME_ACTIVE),
+	mState(GAME_MENU),
 	mResourceManager(),
 	mSpriteRenderer(),
-	mLevelIndex(1),
+	mLevelIndex(0),
 	mShakeTime(0.0f),
 	mPaddle(),
 	mPowerUpSpawner(),
-	mSoundEngine(nullptr)
+	mSoundEngine(nullptr),
+	mLives(3)
 {
 
 }
@@ -62,13 +66,17 @@ void Game::Init()
 	InitResources();
 	InitPaddle();
 	InitBall();
-	mRenderManager.Init(mResourceManager.GetShader(POST_PROCESSING_SHADER_INDEX), mWidth, mHeight);
+	mRenderManager.Init(mResourceManager.GetShader(SHADER_POST_PROCESSING_INDEX), mWidth, mHeight);
 	InitPowerUpSpawner();
 	InitAudio();
+	mTextRenderer.Init(mResourceManager.GetShader(SHADER_TEXT_INDEX), "resources/fonts/OCRAEXT.TTF");
 }
 
 void Game::ProcessInput(float dt)
 {
+	static bool keyAPrevious = false;
+	static bool keyDPrevious = false;
+
 	if (mState == GAME_ACTIVE)
 	{
 		glm::vec2 paddleVelocity = mPaddle.GetVelocity();
@@ -99,6 +107,32 @@ void Game::ProcessInput(float dt)
 			PlaySoundWithVolume("resources/audio/bleep.wav", 0.6f, false);
 		}
 	}
+	else if (mState == GAME_MENU)
+	{
+		if (!mKeys[GLFW_KEY_A] && keyAPrevious)
+		{
+			mLevelIndex = (mLevelIndex + 1) % mResourceManager.GetNumLevels();
+		}
+		if (!mKeys[GLFW_KEY_D] && keyDPrevious)
+		{
+			mLevelIndex--;
+			if (mLevelIndex < 0)
+			{
+				mLevelIndex = mResourceManager.GetNumLevels() - 1;
+			}
+		}
+		if (mKeys[GLFW_KEY_SPACE])
+		{
+			mState = GAME_ACTIVE;
+		}
+	}
+	else
+	{
+
+	}
+
+	keyAPrevious = mKeys[GLFW_KEY_A];
+	keyDPrevious = mKeys[GLFW_KEY_D];
 }
 
 void Game::Update(float dt)
@@ -108,7 +142,14 @@ void Game::Update(float dt)
 	CheckCollisions();
 	if (mBall.GetPosition().y >= mHeight)
 	{
-		ResetCurrentLevel();
+		if (--mLives == 0)
+		{
+			ResetCurrentLevel(true);
+		}
+		else
+		{
+			ResetCurrentLevel(false);
+		}
 	}
 
 	if (mShakeTime <= 0.0f)
@@ -125,12 +166,13 @@ void Game::Update(float dt)
 
 void Game::Render()
 {
-	if (mState == GAME_ACTIVE)
+	ShaderProgram* spriteShader = mResourceManager.GetShader(SHADER_SPRITE_INDEX);
+	Texture2D* backgroundTexture = mResourceManager.GetTexture2D(TEXTURE_BACKGROUND_INDEX);
+	GameLevel* currentLevel = mResourceManager.GetLevel(mLevelIndex);
+
+	if (mState == GAME_ACTIVE || mState == GAME_MENU)
 	{
-		ShaderProgram* spriteShader = mResourceManager.GetShader(SPRITE_SHADER_INDEX);
 		Texture2D* awesomeFaceTexture = mResourceManager.GetTexture2D(TEXTURE_AWESOMEFACE_INDEX);
-		Texture2D* backgroundTexture = mResourceManager.GetTexture2D(TEXTURE_BACKGROUND_INDEX);
-		GameLevel* currentLevel = mResourceManager.GetLevel(mLevelIndex);
 
 		mRenderManager.Begin();
 
@@ -153,6 +195,14 @@ void Game::Render()
 		mSpriteRenderer.DrawGameObject(spriteShader, &mBall);
 
 		mRenderManager.End(glfwGetTime());
+
+		mTextRenderer.Draw(std::format("Lives: {}", mLives), glm::vec2(5.0f, 5.0f), glm::vec3(1.0f), 0.5f);
+	}
+
+	if (mState == GAME_MENU)
+	{
+		mTextRenderer.Draw("Press SPACE to start", glm::vec2(350.0f, mHeight / 2 + 10.0f), glm::vec3(1.0f), 1.0f);
+		mTextRenderer.Draw("Press A or D to select level", glm::vec2(340.0f, mHeight / 2 + 50.0f), glm::vec3(1.0f), 0.75f);
 	}
 }
 
@@ -166,11 +216,15 @@ void Game::InitResources()
 	ResourceManager::LoadShaderOptions loadShaderOptions;
 	loadShaderOptions.VertexShaderPath = "resources/shaders/sprite.vert";
 	loadShaderOptions.FragmentShaderPath = "resources/shaders/sprite.frag";
-	SPRITE_SHADER_INDEX = mResourceManager.LoadShader(loadShaderOptions);
+	SHADER_SPRITE_INDEX = mResourceManager.LoadShader(loadShaderOptions);
 
 	loadShaderOptions.VertexShaderPath = "resources/shaders/postprocessing.vert";
 	loadShaderOptions.FragmentShaderPath = "resources/shaders/postprocessing.frag";
-	POST_PROCESSING_SHADER_INDEX = mResourceManager.LoadShader(loadShaderOptions);
+	SHADER_POST_PROCESSING_INDEX = mResourceManager.LoadShader(loadShaderOptions);
+
+	loadShaderOptions.VertexShaderPath = "resources/shaders/text.vert";
+	loadShaderOptions.FragmentShaderPath = "resources/shaders/text.frag";
+	SHADER_TEXT_INDEX = mResourceManager.LoadShader(loadShaderOptions);
 
 	ResourceManager::LoadTextureOptions loadTextureOptions;
 	loadTextureOptions.Path = "resources/textures/awesomeface.png";
@@ -199,18 +253,21 @@ void Game::InitResources()
 	TEXTURE_STICKY_POWERUP_INDEX = mResourceManager.LoadTexture2D(loadTextureOptions);
 
 	auto projectionMat = glm::ortho(0.0f, static_cast<float>(mWidth), static_cast<float>(mHeight), 0.0f, -1.0f, 1.0f);
-	ShaderProgram* spriteShader = mResourceManager.GetShader(SPRITE_SHADER_INDEX);
+	ShaderProgram* spriteShader = mResourceManager.GetShader(SHADER_SPRITE_INDEX);
 	spriteShader->Bind();
 	spriteShader->SetInt("uImage", 0);
 	spriteShader->SetMat4("uProjection", glm::value_ptr(projectionMat));
+
+	ShaderProgram* textShader = mResourceManager.GetShader(SHADER_TEXT_INDEX);
+	textShader->Bind();
+	textShader->SetInt("uTextImage", 0);
+	textShader->SetMat4("uProjection", glm::value_ptr(projectionMat));
 
 	ResourceManager::LoadLevelOptions loadLevelOptions;
 	loadLevelOptions.LevelWidth = mWidth;
 	loadLevelOptions.LevelHeight = mHeight / 2.0f;
 	loadLevelOptions.blockTexture = mResourceManager.GetTexture2D(TEXTURE_BLOCK_INDEX);
 	loadLevelOptions.solidBlockTexture = mResourceManager.GetTexture2D(TEXTURE_BLOCK_SOLID_INDEX);
-	loadLevelOptions.Path = "resources/levels/beginner.lvl";
-	mResourceManager.LoadLevel(loadLevelOptions);
 	loadLevelOptions.Path = "resources/levels/standard.lvl";
 	mResourceManager.LoadLevel(loadLevelOptions);
 	loadLevelOptions.Path = "resources/levels/few_small_gaps.lvl";
@@ -422,7 +479,7 @@ void Game::CheckCollisionsWithPowerUps()
 	}
 }
 
-void Game::ResetCurrentLevel()
+void Game::ResetCurrentLevel(bool resetLevel)
 {
 	InitPaddle();
 	InitBall();
@@ -436,7 +493,11 @@ void Game::ResetCurrentLevel()
 	mPaddle.SetSize(PADDLE_INITIAL_SIZE);
 	mBall.SetVelocity(BALL_INITIAL_VELOCITY);
 
-	mResourceManager.GetLevel(mLevelIndex)->Reset();
+	if (resetLevel)
+	{
+		mResourceManager.GetLevel(mLevelIndex)->Reset();
+		mState = GAME_MENU;
+	}
 }
 
 void Game::ActivatePowerUp(const PowerUp& powerUp)

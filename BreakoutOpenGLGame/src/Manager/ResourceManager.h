@@ -40,6 +40,8 @@ public:
 	unsigned int LoadShader(const LoadShaderOptions& options);
 	unsigned int LoadTexture2D(const LoadTextureOptions& options);
 	unsigned int LoadLevel(const LoadLevelOptions& options);
+
+	unsigned int GetNumLevels() const { return mLevels.size(); }
 private:
 	void InitShaderProgram(ShaderProgram* shaderProgram, const LoadShaderOptions& options);
 	void CompileShaderFromFile(Shader& shader, const char* filePath);

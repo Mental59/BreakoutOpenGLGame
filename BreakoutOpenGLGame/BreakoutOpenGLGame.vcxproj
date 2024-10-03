@@ -123,7 +123,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>glfw3.lib;opengl32.lib;freetype.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>glfw3.lib;opengl32.lib;freetype.lib;irrKlang.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -164,6 +164,7 @@
     <ClCompile Include="src\External\glad.c" />
     <ClCompile Include="src\Main.cpp" />
     <ClCompile Include="src\Texture\Texture2D.cpp" />
+    <ClCompile Include="src\Renderer\TextRenderer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Game\PowerUpSpawner.h" />
@@ -183,12 +184,15 @@
     <ClInclude Include="src\External\stb_image.h" />
     <ClInclude Include="src\Texture\Texture2D.h" />
     <ClInclude Include="src\Utils\Vector.h" />
+    <ClInclude Include="src\Renderer\TextRenderer.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="resources\shaders\postprocessing.frag" />
     <None Include="resources\shaders\postprocessing.vert" />
     <None Include="resources\shaders\sprite.vert" />
     <None Include="resources\shaders\sprite.frag" />
+    <None Include="resources\shaders\text.frag" />
+    <None Include="resources\shaders\text.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

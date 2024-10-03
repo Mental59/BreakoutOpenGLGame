@@ -66,6 +66,9 @@
     <ClCompile Include="src\Game\PowerUpSpawner.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Renderer\TextRenderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\External\stb_image.h">
@@ -119,11 +122,16 @@
     <ClInclude Include="src\Game\PowerUpSpawner.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\Renderer\TextRenderer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="resources\shaders\sprite.vert" />
     <None Include="resources\shaders\sprite.frag" />
     <None Include="resources\shaders\postprocessing.vert" />
     <None Include="resources\shaders\postprocessing.frag" />
+    <None Include="resources\shaders\text.vert" />
+    <None Include="resources\shaders\text.frag" />
   </ItemGroup>
 </Project>

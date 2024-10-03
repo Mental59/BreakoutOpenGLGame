@@ -7,6 +7,7 @@
 #include "Manager/RenderManager.h"
 #include "Game/PowerUpSpawner.h"
 #include "Game/PowerUp.h"
+#include "Renderer/TextRenderer.h"
 
 static int constexpr NUM_KEYS = 1024;
 
@@ -52,7 +53,7 @@ private:
 	void CheckCollisionWithPaddle();
 	void CheckCollisionsWithPowerUps();
 
-	void ResetCurrentLevel();
+	void ResetCurrentLevel(bool resetLevel);
 
 	void ActivatePowerUp(const PowerUp& powerUp);
 	void UpdatePowerUps(float dt);
@@ -75,15 +76,19 @@ private:
 	PowerUpSpawner mPowerUpSpawner;
 
 	SpriteRenderer mSpriteRenderer;
+	TextRenderer mTextRenderer;
+
 	GameObject mPaddle;
 	BallGameObject mBall;
 
 	int mWidth, mHeight;
 	bool mKeys[NUM_KEYS];
-	unsigned int mLevelIndex;
+	int mLevelIndex;
 	float mShakeTime;
 
 	irrklang::ISoundEngine* mSoundEngine;
 
 	GameState mState;
+
+	unsigned int mLives;
 };
