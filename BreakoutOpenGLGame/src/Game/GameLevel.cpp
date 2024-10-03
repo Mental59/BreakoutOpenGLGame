@@ -83,19 +83,13 @@ bool GameLevel::IsCompleted() const
 {
 	for (unsigned int i = 0; i < mNumBricks; i++)
 	{
-		if (mBricks[i].IsDestroyed())
+		if (!mBricks[i].IsSolid() && !mBricks[i].IsDestroyed())
 		{
-			return true;
+			return false;
 		}
-
-		//if (!mBricks[i].IsSolid() && !mBricks[i].IsDestroyed())
-		//{
-		//	return false;
-		//}
 	}
 
-	//return true;
-	return false;
+	return true;
 }
 
 void GameLevel::Reset()
